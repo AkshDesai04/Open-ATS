@@ -1,6 +1,7 @@
 INP: document ingest
 INP: Description input
-INP: Value of components as component_value
+    INP: Attributes of system
+    INP: Value of components as component_value
 
 PRO: Formatting text and save to resume_data string
 PRO: Compare description with resume_data
