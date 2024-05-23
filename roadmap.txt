@@ -1,0 +1,16 @@
+INP: document ingest
+INP: Description input
+INP: Value of components as component_value
+
+PRO: Formatting text and save to resume_data string
+PRO: Compare description with resume_data
+PRO: Cleaning of data in resume string
+PRO: Tokenize (Study tokenization)
+PRO: For every matching thing, add its value to the total
+    PRO: Match about me data (Match with component_value) (Ask ma'am about this)
+    PRO: Match qualification (Match with component_value)
+    PRO: Match skill (Match with component_value)
+    PRO: Match experience (Match with component_value)
+    PRO: Match with projects (Match with component_value)
+
+OUT: Print the total value
