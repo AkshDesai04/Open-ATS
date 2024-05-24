@@ -1,17 +1,28 @@
 import csv
 import os
 
-def save_to_csv(data, filename='./ignore/result.csv'):
-    header = ['name', 'location', 'email', 'phone number']
-    name = data[0]
-    location = data[1]
-    email = data[2]
-    phone_number = data[3]
+def save_to_csv(resume_info_tuple, file_path="./ignore/result.csv"):
+    print(resume_info_tuple)
+    # Check if the file exists
+    file_exists = os.path.isfile(file_path)
 
-    file_exists = os.path.isfile(filename)
+    # Define fieldnames for CSV header
+    fieldnames = ['name', 'phone', 'email']
 
-    with open(filename, 'a', newline='') as file:
-        writer = csv.writer(file)
+    # Write to CSV file
+    with open(file_path, mode='a', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+        # Write header only if the file is empty
         if not file_exists:
-            writer.writerow(header)
-        writer.writerow([name, location, email, phone_number])
+            writer.writeheader()
+
+        # Check if the tuple has the expected structure
+        if len(resume_info_tuple) == 3:
+            # Convert tuple to dictionary
+            resume_info = {'name': resume_info_tuple['name'], 'phone': resume_info_tuple['phone'], 'email': resume_info_tuple['email']}
+            
+            # Write the resume_info to the CSV file
+            writer.writerow(resume_info)
+        else:
+            print("Error: Invalid tuple structure. Expected a tuple with 3 elements (name, phone, email).")

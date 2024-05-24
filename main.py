@@ -1,18 +1,37 @@
+import os
+
 import ingest
 import cleanup
 import data_retrieval
 import result
 
 def main():
-    # profile = input("Enter path and name to resume")
     # job_description = input("Enter path and name to description")
-    profile = ingest.ingest_profile("./ignore/Aksh.pdf")
     # job_description = ingest.ingest_job_description()
 
-    for i in range(10):
-        resume_cleanup = cleanup.clean_resume(profile)
-        resume_divide = cleanup.divide_resume(resume_cleanup)
-        result.save_to_csv(data_retrieval.personal_information(resume_divide))
+    # resume_folder = input("Enter path and name to resumes")
+    resume_folder = "./ignore/resumes/testing/"
+    process_resumes(resume_folder)
+
+def process_resumes(resume_folder):
+    with os.scandir(resume_folder) as entries:
+        for entry in entries:
+            if entry.is_file():
+                print("Processing: " + resume_folder + entry.name)
+                profile = ingest.ingest_profile(resume_folder + entry.name)
+                resume_cleanup = cleanup.clean_resume(profile)
+                resume_divide = cleanup.divide_resume(resume_cleanup)
+                result.save_to_csv(resume_divide)
+                # print('Hola')
+                # # print(resume_divide)
+                # print('Hola')
+
+                # print("resume_cleanup" + '**********')
+                # print(resume_cleanup)
+                # print("resume_divide" + '**********')
+                # print(resume_divide)
+
+
 
 if __name__ == "__main__":
     main()
