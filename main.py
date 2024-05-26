@@ -17,21 +17,14 @@ def process_resumes(resume_folder):
     with os.scandir(resume_folder) as entries:
         for entry in entries:
             if entry.is_file():
-                print("Processing: " + resume_folder + entry.name)
+                # print("Processing: " + resume_folder + entry.name)
                 profile = ingest.ingest_profile(resume_folder + entry.name)
                 resume_cleanup = cleanup.clean_resume(profile)
+                print("\n\n\n\n\n----------------------------------------------------------")
+                print(resume_cleanup)
+                print("----------------------------------------------------------\n\n\n\n\n")
                 resume_divide = cleanup.divide_resume(resume_cleanup)
                 result.save_to_csv(resume_divide)
-                # print('Hola')
-                # # print(resume_divide)
-                # print('Hola')
-
-                # print("resume_cleanup" + '**********')
-                # print(resume_cleanup)
-                # print("resume_divide" + '**********')
-                # print(resume_divide)
-
-
 
 if __name__ == "__main__":
     main()
