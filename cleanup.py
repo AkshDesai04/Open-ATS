@@ -109,18 +109,32 @@ def extract_companies(resume_text):
     # Normalize the text to make matching easier
     resume_text = resume_text.lower()
     
-    # Define regex patterns to match company-related keywords and potential company names
+    # Extract text starting from 'experience'
+    experience_start = re.search(r'experience', resume_text)
+    if experience_start:
+        resume_text = resume_text[experience_start.start():]
+    else:
+        return []
+
+    # Define refined regex patterns to match company-related keywords and potential company names
     experience_patterns = [
-        r'intern at ([\w\s]+)',       # Matches "Intern at [Company]"
-        r'worked at ([\w\s]+)',       # Matches "Worked at [Company]"
-        r'([a-z\s]+ltd)',             # Matches "[Company] Ltd"
-        r'([a-z\s]+labs)',            # Matches "[Company] Labs"
-        r'([a-z\s]+solutions)',       # Matches "[Company] Solutions"
-        r'([a-z\s]+inc)',             # Matches "[Company] Inc"
-        r'([a-z\s]+pvt ltd)',         # Matches "[Company] Pvt Ltd"
-        r'([a-z\s]+corporation)',     # Matches "[Company] Corporation"
-        r'([a-z\s]+consulting)',      # Matches "[Company] Consulting"
-        r'([a-z\s]+services)'         # Matches "[Company] Services"
+        r'intern at ([\w\s]+)',      # Matches "Intern at [Company]"
+        r'worked at ([\w\s]+)',      # Matches "Worked at [Company]"
+        r'([a-z\s]+ ltd)',           # Matches "[Company] Ltd"
+        r'([a-z\s]+ labs)',          # Matches "[Company] Labs"
+        r'([a-z\s]+ solutions)',     # Matches "[Company] Solutions"
+        r'([a-z\s]+ inc)',           # Matches "[Company] Inc"
+        r'([a-z\s]+ pvt ltd)',       # Matches "[Company] Pvt Ltd"
+        r'([a-z\s]+ corporation)',   # Matches "[Company] Corporation"
+        r'([a-z\s]+ consulting)',    # Matches "[Company] Consulting"
+        r'([a-z\s]+ services)',      # Matches "[Company] Services"
+        r'([a-z\s]+ llp)',           # Matches "[Company] LLP"
+        r'([a-z\s]+ group)',         # Matches "[Company] Group"
+        r'([a-z\s]+ enterprises)',   # Matches "[Company] Enterprises"
+        r'([a-z\s]+ technologies)',  # Matches "[Company] Technologies"
+        r'([a-z\s]+ brothers)',      # Matches "[Company] Brothers"
+        r'([a-z\s]+ design)',        # Matches "[Company] Design"
+        r'([a-z\s]+ cab service)',   # Matches "[Company] Cab Service"
     ]
     
     # Combine all patterns into a single pattern
@@ -140,7 +154,24 @@ def extract_companies(resume_text):
         if company:
             companies.append(company)
     
+    # Additional filtering to ensure strings resemble company names
+    def is_valid_company(name):
+        # Check for common invalid patterns
+        invalid_patterns = [
+            r'^[a-z]{1,3}$',  # Too short words
+            r'\d',            # Contains digits
+            r'\n',            # Contains newline
+            r'\b(?:at|worked|intern|project|team|member|club|college|university|school|institute|academy|department|faculty|committee|volunteer|association|society|ngo)\b'  # Common non-company words
+        ]
+        for pattern in invalid_patterns:
+            if re.search(pattern, name):
+                return False
+        return True
+    
+    # Filter companies based on the validity check
+    valid_companies = [company for company in companies if is_valid_company(company)]
+    
     # Remove duplicates by converting to a set and back to a list
-    unique_companies = list(set(companies))
+    unique_companies = list(set(valid_companies))
     
     return unique_companies
