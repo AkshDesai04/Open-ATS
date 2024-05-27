@@ -135,6 +135,7 @@ def extract_companies(resume_text):
         r'([a-z\s]+ brothers)',      # Matches "[Company] Brothers"
         r'([a-z\s]+ design)',        # Matches "[Company] Design"
         r'([a-z\s]+ cab service)',   # Matches "[Company] Cab Service"
+        r'freelancer'                # Matches "freelancer"
     ]
     
     # Combine all patterns into a single pattern
