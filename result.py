@@ -29,7 +29,7 @@ def save_to_csv(resume_info, file_path="./ignore/result.csv"):
                 'experience_years': resume_info['experience_years'],
                 'qualification': resume_info['qualification'],
                 'skills': skills_str,
-                'work_experience': work_experience_str,
+                # 'work_experience': work_experience_str,
                 'career_duration': resume_info['career_duration'],
                 'is_still_working': resume_info['is_still_working'],
                 'gap_durations': resume_info['gap_durations'],
