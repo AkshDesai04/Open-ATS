@@ -2,7 +2,6 @@ import re
 from datetime import datetime
 
 def parse_dates(text):
-    # Define patterns for various date formats (e.g., Jan 2020, Jan. 2020, January 2020)
     date_patterns = [
         r'\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.? (\d{4})\b',
         r'\b(\d{4})\b'
