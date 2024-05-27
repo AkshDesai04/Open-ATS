@@ -12,8 +12,7 @@ def main():
 
     # For testing, use hardcoded paths
     job_description = "./ignore/job_description.txt"
-    resume_folder = "./ignore/resumes/testing/"
-    
+    resume_folder = "./resumes/"
     process_resumes(job_description, resume_folder)
 
 def process_resumes(job_description_path, resume_folder):
@@ -25,9 +24,6 @@ def process_resumes(job_description_path, resume_folder):
                     profile = ingest.ingest_profile(resume_path)
                     resume_cleanup = cleanup.clean_resume(profile)
                     work_extracted = cleanup.extract_experience(resume_cleanup)
-                    # print("\n\n\n\n\n----------------------------------------------------------")
-                    # print(resume_cleanup)
-                    # print("----------------------------------------------------------\n\n\n\n\n")
                     resume_divide = cleanup.divide_resume(resume_cleanup)
                     result.save_to_csv(resume_divide)
                 except Exception as e:
