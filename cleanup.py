@@ -31,81 +31,7 @@ def clean_resume(resume_text):
 
     return cleaned_resume
 
-def divide_resume(resume_text):
-    def extract_experience(resume_text):
-        recorded_years = []
-        # Define regular expression pattern to extract experience section
-        experience_pattern = r'(?i)\b(?:intern|experience)\b[\s\S]+?(?=\b(?:education|projects|skills|certifications|publications|volunteering|honors|awards|memberships|leadership|licenses|clinical|work|related|relevant|technical|professional|experience|projects|certifications)\b)'
-
-        # Search for matches
-        experience_matches = re.findall(experience_pattern, resume_text)
-
-        # Calculate total experience
-        total_years = 0
-        for match in experience_matches:
-            # Extract date ranges
-            date_ranges = re.findall(r'(?:(?:\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?)\s+\d{4})|(?:\d{4}))', match)
-            
-            # Calculate experience duration for each date range
-            for date in date_ranges:
-                if date.strip().isdigit() and int(date.strip()) <= datetime.now().year and int(date.strip()) not in recorded_years:
-                    recorded_years.append(int(date.strip()))
-                    # If only year is provided, assume it as a full year of experience
-                    total_years += 1
-                else:
-                    # If month and year are provided, extract month and year
-                    dates = date.split()
-                    if len(dates) == 2:  # Ensure there are both month and year
-                        month = dates[0][:3]  # Take first 3 letters to handle abbreviated month names
-                        year = int(dates[1])
-                        total_years += ((datetime.now().year - year) * 12 + (datetime.now().month - (['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].index(month) + 1))) / 12
-        
-        return round(total_years, 1)
-
-    def extract_skills(resume_text):
-        # Define pattern to identify the skills section
-        skills_pattern = r'(?i)\bskills\b[\s\S]+?(?=\b(?:education|projects|experience|certifications|publications|volunteering|honors|awards|memberships|leadership|licenses|clinical|work|related|relevant|technical|professional|experience|projects|certifications)\b)'
-
-        # Search for matches
-        skills_matches = re.findall(skills_pattern, resume_text)
-
-        if skills_matches:
-            # Extract the skills from the matched section
-            skills_text = skills_matches[0]
-            skills = re.findall(r'\b\w+\b', skills_text)
-            return skills
-        return []
-
-    # Define regular expressions for extracting information
-    phone_pattern = re.compile(r'(?:(?:\+?\d{1,3})[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', re.IGNORECASE)
-    email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', re.IGNORECASE)
-    qualifications = [r"Ph\.?D\.?", r"M\.?S\.?C\.?\s?[A-Z]*", r"B\.?S\.?C\.?\s?[A-Z]*", r"B\.?A\.?", r"M\.?A\.?", r"Associate Degree", r"High School Diploma"]
-
-    # Extract name from the first line
-    lines = resume_text.split('\n')
-    name = lines[0].strip()
-    experience_years = extract_experience(resume_text)
-    skills = extract_skills(resume_text)
-    highest_qualification = None
-
-    # Extract phone and email using regular expressions
-    phone_match = re.search(phone_pattern, resume_text)
-    phone = phone_match.group().strip() if phone_match else ""
-    
-    email_match = re.search(email_pattern, resume_text)
-    email = email_match.group().strip() if email_match else ""
-
-    for qualification_pattern in qualifications:
-        match = re.search(qualification_pattern, resume_text, re.IGNORECASE)
-        if match:
-            highest_qualification = match.group(0)
-            break
-
-    # Return extracted information as a dictionary
-    # print({'name': name, 'phone': phone, 'email': email, 'experience_years': experience_years, 'qualification': highest_qualification, 'skills': skills})
-    return {'name': name, 'phone': phone, 'email': email, 'experience_years': experience_years, 'qualification': highest_qualification, 'skills': skills, 'work experience': extract_companies(resume_text)}
-
-def extract_companies(resume_text):
+def extract_experience(resume_text):
     # Normalize the text to make matching easier
     resume_text = resume_text.lower()
     
@@ -141,7 +67,10 @@ def extract_companies(resume_text):
     # Combine all patterns into a single pattern
     combined_pattern = re.compile('|'.join(experience_patterns), re.IGNORECASE)
     
-    # Find all matches in the resume text
+    # Define a regex pattern for extracting dates
+    date_pattern = re.compile(r'(?P<start_month>[a-zA-Z]+)?\s*(?P<start_year>\d{4})?\s*[-–]\s*(?P<end_month>[a-zA-Z]+)?\s*(?P<end_year>\d{4}|current)', re.IGNORECASE)
+    
+    # Extract all matches in the resume text for companies
     matches = combined_pattern.findall(resume_text)
     
     # Clean up matches and filter out empty strings
@@ -174,5 +103,115 @@ def extract_companies(resume_text):
     
     # Remove duplicates by converting to a set and back to a list
     unique_companies = list(set(valid_companies))
+
+    # Extract dates associated with each company
+    experiences = []
+    for company in unique_companies:
+        # Find the first occurrence of the company name
+        company_start = resume_text.find(company.lower())
+        if company_start == -1:
+            continue
+        
+        # Look for the date pattern around the company name
+        before_text = resume_text[max(0, company_start - 100):company_start]
+        after_text = resume_text[company_start:company_start + 100]
+        
+        before_dates = date_pattern.findall(before_text)
+        after_dates = date_pattern.findall(after_text)
+        
+        if before_dates:
+            start_date, end_date = before_dates[-1][1], before_dates[-1][3]
+        elif after_dates:
+            start_date, end_date = after_dates[0][1], after_dates[0][3]
+        else:
+            start_date, end_date = None, None
+        
+        experiences.append({
+            'company': company, 
+            'start_date': start_date, 
+            'end_date': end_date
+        })
     
-    return unique_companies
+    return experiences
+
+def extract_skills(resume_text):
+    # Define pattern to identify the skills section
+    skills_pattern = r'(?i)\bskills\b[\s\S]+?(?=\b(?:education|projects|experience|certifications|publications|volunteering|honors|awards|memberships|leadership|licenses|clinical|work|related|relevant|technical|professional|experience|projects|certifications)\b)'
+
+    # Search for matches
+    skills_matches = re.findall(skills_pattern, resume_text)
+
+    if skills_matches:
+        # Extract the skills from the matched section
+        skills_text = skills_matches[0]
+        skills = re.findall(r'\b\w+\b', skills_text)
+        return skills
+    return []
+
+def divide_resume(resume_text):
+    # Define regular expressions for extracting information
+    phone_pattern = re.compile(r'(?:(?:\+?\d{1,3})[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', re.IGNORECASE)
+    email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', re.IGNORECASE)
+    qualifications = [r"Ph\.?D\.?", r"M\.?S\.?C\.?\s?[A-Z]*", r"B\.?S\.?C\.?\s?[A-Z]*", r"B\.?A\.?", r"M\.?A\.?", r"Associate Degree", r"High School Diploma"]
+
+    # Extract name from the first line
+    lines = resume_text.split('\n')
+    name = lines[0].strip()
+    experience_years = extract_experience_duration(resume_text)  # Implement this function similarly
+    skills = extract_skills(resume_text)
+    highest_qualification = None
+
+    # Extract phone and email using regular expressions
+    phone_match = re.search(phone_pattern, resume_text)
+    phone = phone_match.group().strip() if phone_match else ""
+    
+    email_match = re.search(email_pattern, resume_text)
+    email = email_match.group().strip() if email_match else ""
+
+    for qualification_pattern in qualifications:
+        match = re.search(qualification_pattern, resume_text, re.IGNORECASE)
+        if match:
+            highest_qualification = match.group(0)
+            break
+
+    work_experience = extract_experience(resume_text)
+
+    return {
+        'name': name,
+        'phone': phone,
+        'email': email,
+        'experience_years': experience_years,
+        'qualification': highest_qualification,
+        'skills': skills,
+        'work_experience': work_experience
+    }
+
+def extract_experience_duration(resume_text):
+    recorded_years = []
+    # Define regular expression pattern to extract experience section
+    experience_pattern = r'(?i)\b(?:intern|experience)\b[\s\S]+?(?=\b(?:education|projects|skills|certifications|publications|volunteering|honors|awards|memberships|leadership|licenses|clinical|work|related|relevant|technical|professional|experience|projects|certifications)\b)'
+
+    # Search for matches
+    experience_matches = re.findall(experience_pattern, resume_text)
+
+    # Calculate total experience
+    total_years = 0
+    for match in experience_matches:
+        # Extract date ranges
+        date_ranges = re.findall(r'(?:(?:\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?)\s+\d{4})|(?:\d{4}))', match)
+        
+        # Calculate experience duration for each date range
+        for date in date_ranges:
+            if date.strip().isdigit() and int(date.strip()) <= datetime.now().year and int(date.strip()) not in recorded_years:
+                recorded_years.append(int(date.strip()))
+                # If only year is provided, assume it as a full year of experience
+                total_years += 1
+            else:
+                # If month and year are provided, extract month and year
+                dates = date.split()
+                if len(dates) == 2:  # Ensure there are both month and year
+                    month = dates[0][:3]  # Take first 3 letters to handle abbreviated month names
+                    year = int(dates[1])
+                    total_years += ((datetime.now().year - year) * 12 + (datetime.now().month - (['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].index(month) + 1))) / 12
+    
+    return round(total_years, 1)

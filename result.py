@@ -1,12 +1,12 @@
 import csv
 import os
 
-def save_to_csv(resume_info_tuple, file_path="./ignore/result.csv"):
+def save_to_csv(resume_info, file_path="./ignore/result.csv"):
     # Check if the file exists
     file_exists = os.path.isfile(file_path)
 
     # Define fieldnames for CSV header
-    fieldnames = ['name', 'phone', 'email', 'experience', 'qualification', 'skills', 'work experience']
+    fieldnames = ['name', 'phone', 'email', 'experience_years', 'qualification', 'skills', 'work_experience']
 
     # Write to CSV file
     with open(file_path, mode='a', newline='') as csv_file:
@@ -16,32 +16,21 @@ def save_to_csv(resume_info_tuple, file_path="./ignore/result.csv"):
         if not file_exists:
             writer.writeheader()
 
-        # Check if the tuple has the expected structure
-        if len(resume_info_tuple) == 7:
-            # Convert tuple to dictionary
-            try:
-                resume_info = {'name': resume_info_tuple['name'],
-                            'phone': resume_info_tuple['phone'],
-                            'email': resume_info_tuple['email'],
-                            'experience': resume_info_tuple['experience_years'],
-                            'qualification': resume_info_tuple['qualification'],
-                            'skills': resume_info_tuple['skills'],
-                            'work experience': resume_info_tuple['work experience']
-                            }
-            except Exception:
-                try:
-                    resume_info = {'name': resume_info_tuple['name'],
-                                'phone': resume_info_tuple['phone'],
-                                'email': resume_info_tuple['email'],
-                                'experience': resume_info_tuple['experience_years'],
-                                'qualification': resume_info_tuple['qualification'],
-                                'skills': "",
-                                'work experience': resume_info_tuple['work experience']
-                                }
-                except Exception:
-                    print("Something wrong in writing to csv")
-            
-            # Write the resume_info to the CSV file
-            writer.writerow(resume_info)
-        else:
-            print("Error: Invalid tuple structure. Expected a tuple with 6 elements (name, phone, email, experience, qualification, skills).")
+        # Ensure the resume_info contains all necessary fields
+        try:
+            skills_str = ', '.join(resume_info['skills']) if resume_info['skills'] else ""
+            work_experience_str = '; '.join([f"{exp['company']} ({exp['start_date']} - {exp['end_date']})" for exp in resume_info['work_experience']])
+
+            resume_info_dict = {
+                'name': resume_info['name'],
+                'phone': resume_info['phone'],
+                'email': resume_info['email'],
+                'experience_years': resume_info['experience_years'],
+                'qualification': resume_info['qualification'],
+                'skills': skills_str,
+                'work_experience': work_experience_str
+            }
+
+            writer.writerow(resume_info_dict)
+        except Exception as e:
+            print(f"Error writing to CSV: {e}")
