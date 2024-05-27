@@ -1,3 +1,4 @@
+import get_durations
 import re
 from datetime import datetime
 
@@ -175,6 +176,8 @@ def divide_resume(resume_text):
             break
 
     work_experience = extract_experience(resume_text)
+    
+    career_duration, is_still_working, gap_durations = get_durations.get_durations(resume_text)
 
     return {
         'name': name,
@@ -183,7 +186,10 @@ def divide_resume(resume_text):
         'experience_years': experience_years,
         'qualification': highest_qualification,
         'skills': skills,
-        'work_experience': work_experience
+        'work_experience': work_experience,
+        'career_duration': career_duration,
+        'is_still_working': is_still_working,
+        'gap_durations': gap_durations
     }
 
 def extract_experience_duration(resume_text):

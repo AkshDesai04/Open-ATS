@@ -28,9 +28,8 @@ def process_resumes(job_description_path, resume_folder):
                     # print("\n\n\n\n\n----------------------------------------------------------")
                     # print(resume_cleanup)
                     # print("----------------------------------------------------------\n\n\n\n\n")
-                    # resume_divide = cleanup.divide_resume(resume_cleanup)
-                    # result.save_to_csv(resume_divide)
-                    print(get_durations(resume_cleanup))
+                    resume_divide = cleanup.divide_resume(resume_cleanup)
+                    result.save_to_csv(resume_divide)
                 except Exception as e:
                     print(f"Error processing resume '{resume_path}': {e}")
 
