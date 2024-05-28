@@ -175,7 +175,8 @@ def divide_resume(resume_text):
         'career_duration': career_duration,
         'is_still_working': is_still_working,
         'gap_durations': gap_durations,
-        'marital_status': extract_marital_status(resume_text)
+        'marital_status': extract_marital_status(resume_text),
+        'spoken_languages': extract_speaking_languages(resume_text),
     }
 
 def extract_name(resume_text):
@@ -244,3 +245,42 @@ def extract_marital_status(resume_text):
             return True
     
     return False
+
+def extract_speaking_languages(resume_text):
+    # Static list of all speaking languages (alphabetically sorted)
+    languages = [
+        "Afrikaans", "Akan", "Albanian", "Amharic", "Arabic", "Armenian",
+        "Assamese", "Azerbaijani", "Basque", "Bashkir", "Bavarian",
+        "Belarusian", "Bengali", "Bhojpuri", "Bislama", "Bosnian", "Breton",
+        "Bulgarian", "Burmese", "Catalan", "Cebuano", "Chichewa", "Chinese",
+        "Chittagonian", "Corsican", "Croatian", "Czech", "Danish", "Dari",
+        "Divehi", "Dutch", "Dzongkha", "English", "Esperanto", "Estonian",
+        "Faroese", "Fijian", "Filipino", "Finnish", "French", "Fula", "Galician",
+        "Georgian", "German", "Greek", "Greenlandic", "Gujarati", "Haitian",
+        "Haitian Creole", "Hausa", "Hebrew", "Herero", "Hiligaynon", "Hindi",
+        "Hmong", "Hmong Daw", "Hungarian", "Icelandic", "Igbo", "Ilocano",
+        "Indonesian", "Irish", "Italian", "Japanese", "Javanese", "Jin", "Kannada",
+        "Kazakh", "Khmer", "Kinyarwanda", "Konkani", "Korean", "Kurdish",
+        "Kyrgyz", "Lao", "Latin", "Latvian", "Lithuanian", "Luxembourgish",
+        "Macedonian", "Magahi", "Maithili", "Malagasy", "Malay", "Malayalam",
+        "Maltese", "Mandarin", "Maori", "Marathi", "Mongolian", "Nepali",
+        "Norwegian", "Odia", "Oromo", "Pashto", "Persian", "Polish",
+        "Portuguese", "Punjabi", "Quechua", "Romanian", "Russian", "Samoan",
+        "Sanskrit", "Serbian", "Shona", "Sindhi", "Sinhala", "Slovak", "Slovene",
+        "Somali", "Spanish", "Sundanese", "Swahili", "Swedish", "Tagalog",
+        "Tajik", "Tamil", "Telugu", "Thai", "Tibetan", "Tigrinya", "Tongan",
+        "Tswana", "Turkish", "Turkmen", "Ukrainian", "Urdu", "Uzbek",
+        "Vietnamese", "Welsh", "Wolof", "Xhosa", "Yiddish", "Yoruba", "Zulu"
+    ]
+
+    # Compile the regex pattern to match any language in the list
+    pattern = re.compile(r'\b(?:' + '|'.join(languages) + r')\b', re.IGNORECASE)
+
+    # Find all matches in the resume string
+    matches = pattern.findall(resume_text)
+
+    # Get unique languages and preserve case
+    spoken_languages = list(set(matches))
+
+    # Return the spoken languages
+    return spoken_languages
