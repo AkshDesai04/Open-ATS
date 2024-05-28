@@ -12,7 +12,7 @@ def main():
 
     # For testing, use hardcoded paths
     job_description = "./ignore/job_description.txt"
-    resume_folder = "./resumes/"
+    resume_folder = "./ignore/resumes/testing/"
     process_resumes(job_description, resume_folder)
 
 def process_resumes(job_description_path, resume_folder):

@@ -1,7 +1,6 @@
 import get_durations
 import re
 from datetime import datetime
-
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize
@@ -86,6 +85,25 @@ def extract_experience(resume_text):
             companies.append(company)
     
     # Additional filtering to ensure strings resemble company names
+    valid_companies = filter_valid_companies(companies)
+    
+    # Remove duplicates by converting to a set and back to a list
+    unique_companies = list(set(valid_companies))
+
+    # Extract dates associated with each company
+    experiences = []
+    for company in unique_companies:
+        start_date, end_date = extract_dates(resume_text, company)
+        
+        experiences.append({
+            'company': company, 
+            'start_date': start_date, 
+            'end_date': end_date
+        })
+    
+    return experiences
+
+def filter_valid_companies(companies):
     def is_valid_company(name):
         # Check for common invalid patterns
         invalid_patterns = [
@@ -99,41 +117,29 @@ def extract_experience(resume_text):
                 return False
         return True
     
-    # Filter companies based on the validity check
-    valid_companies = [company for company in companies if is_valid_company(company)]
-    
-    # Remove duplicates by converting to a set and back to a list
-    unique_companies = list(set(valid_companies))
+    return [company for company in companies if is_valid_company(company)]
 
-    # Extract dates associated with each company
-    experiences = []
-    for company in unique_companies:
-        # Find the first occurrence of the company name
-        company_start = resume_text.find(company.lower())
-        if company_start == -1:
-            continue
-        
-        # Look for the date pattern around the company name
-        before_text = resume_text[max(0, company_start - 100):company_start]
-        after_text = resume_text[company_start:company_start + 100]
-        
-        before_dates = date_pattern.findall(before_text)
-        after_dates = date_pattern.findall(after_text)
-        
-        if before_dates:
-            start_date, end_date = before_dates[-1][1], before_dates[-1][3]
-        elif after_dates:
-            start_date, end_date = after_dates[0][1], after_dates[0][3]
-        else:
-            start_date, end_date = None, None
-        
-        experiences.append({
-            'company': company, 
-            'start_date': start_date, 
-            'end_date': end_date
-        })
+def extract_dates(resume_text, company):
+    # Find the first occurrence of the company name
+    company_start = resume_text.find(company.lower())
+    if company_start == -1:
+        return None, None
     
-    return experiences
+    # Look for the date pattern around the company name
+    before_text = resume_text[max(0, company_start - 100):company_start]
+    after_text = resume_text[company_start:company_start + 100]
+    
+    before_dates = date_pattern.findall(before_text)
+    after_dates = date_pattern.findall(after_text)
+    
+    if before_dates:
+        start_date, end_date = before_dates[-1][1], before_dates[-1][3]
+    elif after_dates:
+        start_date, end_date = after_dates[0][1], after_dates[0][3]
+    else:
+        start_date, end_date = None, None
+    
+    return start_date, end_date
 
 def extract_skills(resume_text):
     # Define pattern to identify the skills section
@@ -150,47 +156,49 @@ def extract_skills(resume_text):
     return []
 
 def divide_resume(resume_text):
-    # Define regular expressions for extracting information
-    phone_pattern = re.compile(r'(?:(?:\+?\d{1,3})[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', re.IGNORECASE)
-    email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', re.IGNORECASE)
-    qualifications = [r"Ph\.?D\.?", r"M\.?S\.?C\.?\s?[A-Z]*", r"B\.?S\.?C\.?\s?[A-Z]*", r"B\.?A\.?", r"M\.?A\.?", r"Associate Degree", r"High School Diploma"]
-
     # Extract name from the first line
-    lines = resume_text.split('\n')
-    name = lines[0].strip()
-    experience_years = extract_experience_duration(resume_text)  # Implement this function similarly
+    name = extract_name(resume_text)
+    experience_years = extract_experience_duration(resume_text)
     skills = extract_skills(resume_text)
-    highest_qualification = None
-
-    # Extract phone and email using regular expressions
-    phone_match = re.search(phone_pattern, resume_text)
-    phone = phone_match.group().strip() if phone_match else ""
-    
-    email_match = re.search(email_pattern, resume_text)
-    email = email_match.group().strip() if email_match else ""
-
-    for qualification_pattern in qualifications:
-        match = re.search(qualification_pattern, resume_text, re.IGNORECASE)
-        if match:
-            highest_qualification = match.group(0)
-            break
-
+    highest_qualification = extract_highest_qualification(resume_text)
     work_experience = extract_experience(resume_text)
-    
     career_duration, is_still_working, gap_durations = get_durations.get_durations(resume_text)
 
     return {
         'name': name,
-        'phone': phone,
-        'email': email,
+        'phone': extract_phone(resume_text),
+        'email': extract_email(resume_text),
         'experience_years': experience_years,
         'qualification': highest_qualification,
         'skills': skills,
         'work_experience': work_experience,
         'career_duration': career_duration,
         'is_still_working': is_still_working,
-        'gap_durations': gap_durations
+        'gap_durations': gap_durations,
+        'marital_status': extract_marital_status(resume_text)
     }
+
+def extract_name(resume_text):
+    lines = resume_text.split('\n')
+    return lines[0].strip()
+
+def extract_phone(resume_text):
+    phone_pattern = re.compile(r'(?:(?:\+?\d{1,3})[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', re.IGNORECASE)
+    phone_match = re.search(phone_pattern, resume_text)
+    return phone_match.group().strip() if phone_match else ""
+
+def extract_email(resume_text):
+    email_pattern = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', re.IGNORECASE)
+    email_match = re.search(email_pattern, resume_text)
+    return email_match.group().strip() if email_match else ""
+
+def extract_highest_qualification(resume_text):
+    qualifications = [r"Ph\.?D\.?", r"M\.?S\.?C\.?\s?[A-Z]*", r"B\.?S\.?C\.?\s?[A-Z]*", r"B\.?A\.?", r"M\.?A\.?", r"Associate Degree", r"High School Diploma"]
+    for qualification_pattern in qualifications:
+        match = re.search(qualification_pattern, resume_text, re.IGNORECASE)
+        if match:
+            return match.group(0)
+    return None
 
 def extract_experience_duration(resume_text):
     recorded_years = []
@@ -221,3 +229,18 @@ def extract_experience_duration(resume_text):
                     total_years += ((datetime.now().year - year) * 12 + (datetime.now().month - (['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].index(month) + 1))) / 12
     
     return round(total_years, 1)
+
+def extract_marital_status(resume_text):
+    # Define patterns to identify marital status
+    marital_status_patterns = [
+        r'\b(?:married|marital status: married)\b',
+        r'\b(?:single|marital status: single)\b',
+        r'\b(?:divorced|marital status: divorced)\b'
+    ]
+    
+    # Search for matches
+    for pattern in marital_status_patterns:
+        if re.search(pattern, resume_text, re.IGNORECASE):
+            return True
+    
+    return False
