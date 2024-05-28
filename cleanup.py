@@ -177,6 +177,8 @@ def divide_resume(resume_text):
         'gap_durations': gap_durations,
         'marital_status': extract_marital_status(resume_text),
         'spoken_languages': extract_speaking_languages(resume_text),
+        'certifications': extract_certifications(resume_text),
+        'projects': extract_projects(resume_text),
     }
 
 def extract_name(resume_text):
@@ -284,3 +286,29 @@ def extract_speaking_languages(resume_text):
 
     # Return the spoken languages
     return spoken_languages
+
+def extract_certifications(resume_text):
+    # Define patterns to match lines with certifications
+    certification_patterns = [
+        r'\bcertificate\b',
+        r'\bcertification\b',
+        r'\bcertified\b',
+        r'\bcompleted\b',
+        r'\bid\b',
+        r'\bnptel\b',
+        r'\bcoursera\b',
+        r'\bcisco\b',
+        r'\bgoogle\b',
+        r'\bec[-\s]?council\b'
+    ]
+
+    # Combine all patterns into a single regex
+    combined_pattern = re.compile('|'.join(certification_patterns), re.IGNORECASE)
+    
+    # Find all matching lines
+    certifications = []
+    for line in resume_text.split('\n'):
+        if combined_pattern.search(line):
+            certifications.append(line.strip())
+    
+    return certifications

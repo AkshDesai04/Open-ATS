@@ -3,8 +3,6 @@ import ingest
 import cleanup
 import result
 
-from get_durations import get_durations
-
 def main():
     # Uncomment the following lines for user input
     # job_description = input("Enter path to the job description: ")
@@ -23,11 +21,13 @@ def process_resumes(job_description_path, resume_folder):
                 try:
                     profile = ingest.ingest_profile(resume_path)
                     resume_cleanup = cleanup.clean_resume(profile)
+                    # print(resume_cleanup + "\n\n\n\n\n\n\n\n\n\n")
                     work_extracted = cleanup.extract_experience(resume_cleanup)
                     resume_divide = cleanup.divide_resume(resume_cleanup)
                     result.save_to_csv(resume_divide)
                 except Exception as e:
-                    print(f"Error processing resume '{resume_path}': {e}")
+                    # print(f"Error processing resume '{resume_path}': {e}")
+                    pass
 
 if __name__ == "__main__":
     main()
