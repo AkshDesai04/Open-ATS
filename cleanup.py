@@ -312,3 +312,13 @@ def extract_certifications(resume_text):
             certifications.append(line.strip())
     
     return certifications
+
+def extract_projects(text):
+    projects = []
+    # Find the projects section
+    proj_section = re.search(r'projects(.*?)\n\n', text, re.DOTALL | re.IGNORECASE)
+    if proj_section:
+        proj_text = proj_section.group(1)
+        # Extract each project, assuming they start with a project name followed by a description
+        projects = re.findall(r'[\-\•\*]?\s*([\w\s\.\-\:]+)\n', proj_text)
+    return [proj.strip() for proj in projects if proj.strip()]
