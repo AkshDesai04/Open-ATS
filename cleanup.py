@@ -179,6 +179,7 @@ def divide_resume(resume_text):
         'spoken_languages': extract_speaking_languages(resume_text),
         'certifications': extract_certifications(resume_text),
         'projects': extract_projects(resume_text),
+        'state': find_state(resume_text)
     }
 
 def extract_name(resume_text):
@@ -352,3 +353,30 @@ def extract_projects(text):
                     project_names.append(project_name)
 
     return project_names
+
+def find_state(resume_text):
+    # List of Indian states and Union Territories
+    indian_states_and_ut = [
+        "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+        "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+        "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+        "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana",
+        "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+        "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli", "Daman and Diu",
+        "Lakshadweep", "Delhi", "Puducherry", "Ladakh"
+    ]
+    
+    # Splitting the resume text into words
+    words = resume_text.split()
+    
+    # Iterating through each word in the resume text
+    for word in words:
+        # Converting the word to title case for comparison
+        word = word.title()
+        
+        # Checking if the word matches any state or UT in the list
+        if word in indian_states_and_ut:
+            return word
+    
+    # If no matching state or UT is found
+    return None

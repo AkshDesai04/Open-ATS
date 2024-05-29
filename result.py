@@ -6,7 +6,7 @@ def save_to_csv(resume_info, file_path="./ignore/result.csv"):
     file_exists = os.path.isfile(file_path)
 
     # Define fieldnames for CSV header
-    fieldnames = ['name', 'phone', 'email', 'experience_years', 'qualification', 'skills', 'work_experience', 'career_duration', 'is_still_working', 'gap_durations', 'marital_status', 'spoken_languages', 'certifications', 'projects']
+    fieldnames = ['name', 'phone', 'email', 'experience_years', 'qualification', 'skills', 'work_experience', 'career_duration', 'is_still_working', 'gap_durations', 'marital_status', 'spoken_languages', 'certifications', 'projects', 'state']
 
     # Write to CSV file
     with open(file_path, mode='a', newline='') as csv_file:
@@ -36,7 +36,8 @@ def save_to_csv(resume_info, file_path="./ignore/result.csv"):
                 'marital_status': resume_info['marital_status'],
                 'spoken_languages': resume_info['spoken_languages'],
                 'certifications': resume_info['certifications'],
-                'projects': resume_info['projects']
+                'projects': resume_info['projects'],
+                'state': resume_info['state']
             }
 
             writer.writerow(resume_info_dict)
