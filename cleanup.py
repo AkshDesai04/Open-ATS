@@ -129,6 +129,7 @@ def extract_dates(resume_text, company):
     before_text = resume_text[max(0, company_start - 100):company_start]
     after_text = resume_text[company_start:company_start + 100]
     
+    date_pattern = re.compile(r'(?P<start_month>[a-zA-Z]+)?\s*(?P<start_year>\d{4})?\s*[-–]\s*(?P<end_month>[a-zA-Z]+)?\s*(?P<end_year>\d{4}|current)', re.IGNORECASE)
     before_dates = date_pattern.findall(before_text)
     after_dates = date_pattern.findall(after_text)
     
@@ -197,12 +198,25 @@ def extract_email(resume_text):
     return email_match.group().strip() if email_match else ""
 
 def extract_highest_qualification(resume_text):
-    qualifications = [r"Ph\.?D\.?", r"M\.?S\.?C\.?\s?[A-Z]*", r"B\.?S\.?C\.?\s?[A-Z]*", r"B\.?A\.?", r"M\.?A\.?", r"Associate Degree", r"High School Diploma"]
-    for qualification_pattern in qualifications:
-        match = re.search(qualification_pattern, resume_text, re.IGNORECASE)
+    # Normalize the text
+    resume_text = resume_text.lower()
+    
+    # Define regex patterns for degrees in order of highest to lowest qualification
+    degree_patterns = [
+        r"ph\.?d\.?",             # Matches 'PhD' or 'Ph.D.'
+        r"master(?: of)?\s\w*",    # Matches 'master' followed by any word
+        r"bachelor(?: of)?\s\w*",  # Matches 'bachelor' followed by any word
+        r"diploma\s\w*",          # Matches 'diploma' followed by any word
+        r"secondary school",      # Matches 'secondary school'
+        r"high school diploma"    # Matches 'high school diploma'
+    ]
+    
+    for pattern in degree_patterns:
+        match = re.search(pattern, resume_text)
         if match:
-            return match.group(0)
-    return None
+            return match.group().strip()
+    
+    return "No degree found"
 
 def extract_experience_duration(resume_text):
     recorded_years = []

@@ -2,26 +2,29 @@ import re
 from datetime import datetime
 
 def parse_dates(text):
-    date_patterns = [
-        r'\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.? (\d{4})\b',
-        r'\b(\d{4})\b'
-    ]
-    
-    # Extract dates matching the patterns
-    dates = []
-    for pattern in date_patterns:
-        matches = re.findall(pattern, text, flags=re.IGNORECASE)
-        for match in matches:
-            if len(match) == 2:
-                month_str, year = match
-                month = datetime.strptime(month_str[:3], '%b').month
-                dates.append((int(year), month))
-            elif len(match) == 1:
-                year = match[0]
-                dates.append((int(year), None))
+    try:
+        date_patterns = [
+            r'\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.? (\d{4})\b',
+            r'\b(\d{4})\b'
+        ]
+        
+        # Extract dates matching the patterns
+        dates = []
+        for pattern in date_patterns:
+            matches = re.findall(pattern, text, flags=re.IGNORECASE)
+            for match in matches:
+                if len(match) == 2:
+                    month_str, year = match
+                    month = datetime.strptime(month_str[:3], '%b').month
+                    dates.append((int(year), month))
+                elif len(match) == 1:
+                    year = match[0]
+                    dates.append((int(year), None))
 
-    # Sort dates based on year and month
-    dates.sort(key=lambda date: (date[0], date[1] if date[1] else 0))
+        # Sort dates based on year and month
+        dates.sort(key=lambda date: (date[0], date[1] if date[1] else 0))
+    except Exception as e:
+        print("Hello", e)
     return dates
 
 def calculate_career_duration(dates):
