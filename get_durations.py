@@ -73,9 +73,19 @@ def get_durations(resume_text):
     dates = parse_dates(resume_text)
     career_duration, is_still_working, gaps = calculate_career_duration(dates)
     
+    # Convert career duration into years and months
+    career_years = int(career_duration)
+    career_months = int((career_duration - career_years) * 12)
+    
     # Convert gaps into readable format
     gap_durations = []
     for years, months in gaps:
-        gap_durations.append(f"{years} years and {months} months" if years else f"{months} months")
+        total_months = years * 12 + months
+        gap_years = total_months // 12
+        gap_months = total_months % 12
+        gap_durations.append(f"{gap_years} years and {gap_months} months" if gap_years else f"{gap_months} months")
     
-    return career_duration, is_still_working, gap_durations
+    # Format career duration
+    career_duration_str = f"{career_years} years and {career_months} months" if career_years else f"{career_months} months"
+    
+    return career_duration_str, is_still_working, gap_durations

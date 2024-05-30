@@ -348,19 +348,25 @@ def extract_certifications(resume_text):
 
 def extract_projects(text):
     # Define regex pattern to find project sections
-    project_pattern = r'\bprojects?\b(?:.*?)(?:\n\s*[\d.]+)?\n\s*(.*?)(?=\n\s*(?:publications|certifications|education|experience|$))'
+    project_pattern = r'\bprojects?\b(?:.*?)(?:\n\s*[\d.]+)?\n\s*(.*?)(?=\n\s*(?:publications|certifications|education|experience|skills|$))'
 
     # Find project sections using regex
     project_sections = re.findall(project_pattern, text, re.IGNORECASE | re.DOTALL)
 
     project_names = []
 
-    # Keywords that likely indicate education-related lines
-    education_keywords = ['cgpa', 'gpa', 'university', 'school', 'degree', 'bachelor', 'master', 'diploma', 'secondary', 'technology', 'present', '202', '201', '200']
-    # Keywords that likely indicate irrelevant lines
-    irrelevant_keywords = ['mobile', 'linkedin', 'github', 'leetcode', 'profile', 'phone', 'contact']
-    # Keywords that likely indicate course-related lines
-    course_keywords = ['nptel', 'course', 'certification', 'workshop', 'program']
+    # Keywords that likely indicate non-project-related lines
+    non_project_keywords = [
+        'technical skills', 'languages', 'java', 'python', 'dart', 'c', 'c++',
+        'databases', 'oracle', 'mysql', 'firebase', 'tools', 'non', 'team',
+        'community', 'mobile', 'linkedin', 'github', 'leetcode', 'profile',
+        'phone', 'contact', 'nptel', 'course', 'certification', 'workshop',
+        'program', 'cgpa', 'gpa', 'university', 'school', 'degree', 'bachelor',
+        'master', 'diploma', 'secondary', 'technology', 'present', '202', '201', '200',
+        'intern', 'flutter application development', 'cyber security', 'digital forensics',
+        'surat', 'gujarat', 'india'
+    ]
+    
     # Regex pattern to detect phone numbers
     phone_pattern = r'(\+?\d{1,3}?[-.\s]?(\(?\d{1,4}?\)?[-.\s]?)?(\d[-.\s]?){7,13})'
     # Regex pattern to detect email addresses
@@ -371,18 +377,19 @@ def extract_projects(text):
         # Split the section by newlines
         lines = section.split('\n')
         for line in lines:
-            # Check if the line is not related to education, irrelevant, course, does not contain a phone number or email, and is not too long
+            # Strip whitespace from the line
+            line = line.strip()
+            # Check if the line is not related to non-project keywords, does not contain a phone number or email, and is not too long
             if (
-                not any(keyword in line.lower() for keyword in education_keywords + irrelevant_keywords + course_keywords)
-                and not re.search(phone_pattern, line)
-                and not re.search(email_pattern, line)
-                and len(line.split()) <= 5
+                line and
+                not any(keyword in line.lower() for keyword in non_project_keywords) and
+                not re.search(phone_pattern, line) and
+                not re.search(email_pattern, line) and
+                len(line.split()) <= 5
             ):
-                # Extract project names using a basic condition
-                if line.strip() and not line.strip().startswith(('github.com', 'http', 'https', 'www')):
-                    # Take only the first part before a dash or other description
-                    project_name = re.split(r'[-:]', line.strip())[0].strip()
-                    project_names.append(project_name)
+                # Take only the first part before a dash or other description
+                project_name = re.split(r'[-:]', line)[0].strip()
+                project_names.append(project_name)
 
     return project_names
 
