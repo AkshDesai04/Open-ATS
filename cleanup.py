@@ -185,7 +185,26 @@ def divide_resume(resume_text):
 
 def extract_name(resume_text):
     lines = resume_text.split('\n')
-    return lines[0].strip()
+    name = lines[0].strip()
+
+    # Check if the word 'education' is about to be returned
+    if name.lower() == 'education':
+        # Try to find the user's name from the email address
+        email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        emails = re.findall(email_pattern, resume_text)
+        if emails:
+            # Extracting name from email
+            name_from_email = emails[0].split('@')[0]
+            # Remove digits from the name
+            name_from_email = ''.join([char for char in name_from_email if not char.isdigit()])
+            # Capitalize first letter of each name part
+            name_parts = name_from_email.split('.')
+            name_parts_capitalized = [part.capitalize() for part in name_parts]
+            return ' '.join(name_parts_capitalized)
+        else:
+            return "Name not found"
+    else:
+        return name
 
 def extract_phone(resume_text):
     phone_pattern = re.compile(r'(?:(?:\+?\d{1,3})[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', re.IGNORECASE)
@@ -204,8 +223,7 @@ def extract_highest_qualification(resume_text):
     # Define regex patterns for degrees in order of highest to lowest qualification
     degree_patterns = [
         r"ph\.?d\.?",             # Matches 'PhD' or 'Ph.D.'
-        r"master(?: of)?\s\w*",    # Matches 'master' followed by any word
-        r"bachelor(?: of)?\s\w*",  # Matches 'bachelor' followed by any word
+        r"m\.tech|b\.tech|b\.ed|b\.a|b\.sc|m\.sc|bachelor(?: of)?\s\w*",  # Matches various degree patterns
         r"diploma\s\w*",          # Matches 'diploma' followed by any word
         r"secondary school",      # Matches 'secondary school'
         r"high school diploma"    # Matches 'high school diploma'
