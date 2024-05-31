@@ -50,9 +50,3 @@ def ingest_job_description(job_description_path):
     # print(requirement)
 
     return requirement
-
-
-resume_path = "./ignore/Aksh.pdf"
-print(ingest_profile(resume_path)) #0.13 secs per run on #test_resume0 (without print)
-job_description_path = "./ignore/job_description.txt"
-print(ingest_job_description(job_description_path)) #0.00005 secs per sun on #test_desc (without print)
