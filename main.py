@@ -21,7 +21,6 @@ def process_resumes(job_description_path, resume_folder):
                 try:
                     profile = ingest.ingest_profile(resume_path)
                     resume_cleanup = cleanup.clean_resume(profile)
-                    # print(resume_cleanup + "\n\n\n\n\n\n\n\n\n\n")
                     work_extracted = cleanup.extract_experience(resume_cleanup)
                     resume_divide = cleanup.divide_resume(resume_cleanup)
                     result.save_to_csv(resume_divide)
