@@ -18,12 +18,12 @@ def ingest_job_description(job_description_path):
     expected_experience = 0
     skills = []
     tools = []
-    # value = [] TODO
+    value = []  # This is a list of dictionaries
 
     try:
         with open(job_description_path, 'r') as file:
             for line in file:
-                key, val = line.strip().split(':')
+                key, val = line.strip().split(':', 1)  # Split only on the first colon
                 if key == 'position':
                     position = val.strip()
                 elif key == 'expected experience':
@@ -32,9 +32,14 @@ def ingest_job_description(job_description_path):
                     skills = [skill.strip() for skill in val.split(',')]
                 elif key == 'tools':
                     tools = [tool.strip() for tool in val.split(',')]
-                # elif key == 'value':
-                #     value = [{'experience': int(val.strip().split('=')[1])}, {'skill': int(val.strip().split('=')[2])}, {'tools': int(val.strip().split('=')[3])}]
-                #TODO: Fix this. Taking too long right now hence skipping for later.
+                elif key == 'value':
+                    # Split the value string into components and parse each one
+                    value_parts = val.split(',')
+                    value_dict = {}
+                    for part in value_parts:
+                        sub_key, sub_val = part.strip().split('=')
+                        value_dict[sub_key] = int(sub_val)
+                    value.append(value_dict)
 
     except Exception as e:
         print(f"Error occurred while reading job description: {e}")
@@ -44,9 +49,7 @@ def ingest_job_description(job_description_path):
         'expected_experience': expected_experience,
         'skills': skills,
         'tools': tools,
-        # 'value': value TODO
+        'value': value
     }
-
-    # print(requirement)
 
     return requirement

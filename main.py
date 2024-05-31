@@ -14,6 +14,9 @@ def main():
     process_resumes(job_description, resume_folder)
 
 def process_resumes(job_description_path, resume_folder):
+    job_description = ingest.ingest_job_description(job_description_path)
+    print(job_description)
+
     with os.scandir(resume_folder) as entries:
         for entry in entries:
             if entry.is_file():
