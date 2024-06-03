@@ -1,4 +1,8 @@
 import fitz
+from PIL import Image
+import pytesseract
+import numpy as np
+from pytesseract import Output
 
 def ingest_profile(resume_path):
     text = ""
@@ -7,6 +11,19 @@ def ingest_profile(resume_path):
         with fitz.open(resume_path) as doc:
             for page in doc:
                 text += page.get_text()
+
+    except Exception as e:
+        print(f"Error occurred while extracting text: {e}")
+
+    return text
+
+def ingest_profile_png(resume_path):
+    text = ""
+    try:
+        pytesseract.pytesseract.tesseract_cmd =r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+
+        img = np.array(Image.open(resume_path))
+        text = pytesseract.image_to_string(img)
 
     except Exception as e:
         print(f"Error occurred while extracting text: {e}")
