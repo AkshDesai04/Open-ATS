@@ -11,8 +11,8 @@ def main():
     # resume_folder = input("Enter path to the resumes folder: ")
 
     # For testing, use hardcoded paths
-    job_description = "./ignore/job_description.txt"
-    resume_folder = "./ignore/resumes/testing/"
+    job_description = "./job_description.txt"
+    resume_folder = "./resumes/testing/"
     process_resumes(job_description, resume_folder)
 
 def process_resumes(job_description_path, resume_folder):
