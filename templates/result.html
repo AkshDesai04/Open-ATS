@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Result</title>
+    <style>
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Result</h1>
+    <table>
+        <tr>
+            <th>Filename</th>
+            <th>Field</th>
+            <th>Value</th>
+        </tr>
+        {% for item in data %}
+            <tr>
+                <td rowspan="{{ item.resume|length + 1 }}">{{ item.filename }}</td>
+                <td>score_percentage</td>
+                <td>{{ item.score_percentage }}%</td>
+            </tr>
+            {% for key, value in item.resume.items() %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>
+                        {% if value is iterable and value is not string %}
+                            {% if value is mapping %}
+                                <table>
+                                    <tr>
+                                        <th>Sub-Field</th>
+                                        <th>Value</th>
+                                    </tr>
+                                    {% for subkey, subvalue in value.items() %}
+                                        <tr>
+                                            <td>{{ subkey }}</td>
+                                            <td>{{ subvalue }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            {% else %}
+                                <ul>
+                                    {% for item in value %}
+                                        <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            <!-- Add rows for all the desired fields -->
+            <tr>
+                <td>name</td>
+                <td>{{ item.resume.name }}</td>
+            </tr>
+            <tr>
+                <td>phone</td>
+                <td>{{ item.resume.phone }}</td>
+            </tr>
+            <tr>
+                <td>email</td>
+                <td>{{ item.resume.email }}</td>
+            </tr>
+            <tr>
+                <td>career_duration</td>
+                <td>{{ item.resume.career_duration }}</td>
+            </tr>
+            <tr>
+                <td>is_still_working</td>
+                <td>{{ item.resume.is_still_working }}</td>
+            </tr>
+            <tr>
+                <td>gap_durations</td>
+                <td>{{ item.resume.gap_durations }}</td>
+            </tr>
+            <tr>
+                <td>qualification</td>
+                <td>{{ item.resume.qualification }}</td>
+            </tr>
+            <tr>
+                <td>skills</td>
+                <td>{{ item.resume.skills }}</td>
+            </tr>
+            <tr>
+                <td>work_experience</td>
+                <td>{{ item.resume.work_experience }}</td>
+            </tr>
+            <tr>
+                <td>marital_status</td>
+                <td>{{ item.resume.marital_status }}</td>
+            </tr>
+            <tr>
+                <td>spoken_languages</td>
+                <td>{{ item.resume.spoken_languages }}</td>
+            </tr>
+            <tr>
+                <td>certifications</td>
+                <td>{{ item.resume.certifications }}</td>
+            </tr>
+            <tr>
+                <td>projects</td>
+                <td>{{ item.resume.projects }}</td>
+            </tr>
+            <tr>
+                <td>state</td>
+                <td>{{ item.resume.state }}</td>
+            </tr>
+            <tr>
+                <td>score</td>
+                <td>{{ item.resume.score }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <form method="POST" action="{{ url_for('result') }}">
+        <button type="submit">Save to CSV</button>
+    </form>
+</body>
+</html>

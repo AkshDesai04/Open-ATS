@@ -1,7 +1,7 @@
 import os
 import csv
 
-def save_to_csv(resume_info, score, file_path="./result.csv"):
+def save_to_csv(resume_info, score, file_path="./resultzzz.csv"):
     # Check if the file exists
     file_exists = os.path.isfile(file_path)
 
