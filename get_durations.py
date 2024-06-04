@@ -24,7 +24,7 @@ def parse_dates(text):
         # Sort dates based on year and month
         dates.sort(key=lambda date: (date[0], date[1] if date[1] else 0))
     except Exception as e:
-        print("Hello", e)
+        print(e)
     return dates
 
 def calculate_career_duration(dates):

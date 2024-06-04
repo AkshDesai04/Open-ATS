@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, render_template, send_file
+from flask import Flask, request, redirect, url_for, render_template, send_file, jsonify
 import os
 import time
 from main import main
@@ -18,18 +18,21 @@ def upload_form():
     return render_template('upload.html')
 
 @app.route('/upload', methods=['POST'])
-def upload_file():
+def process_resumes():
     if 'files[]' not in request.files:
         return redirect(request.url)
     
-    files = request.files.getlist('files[]')
-    for file in files:
-        if file:
-            filename = file.filename
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    file = request.files['files[]']
     
-    # Redirect to the result page
-    return redirect(url_for('result'))
+    if file:
+        filename = file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        # Assuming main() returns some value
+        result = main()  # Call main function without arguments
+        
+        # Render the result.html template and pass result to it
+        return render_template('result.html', result=result)
 
 @app.route('/result', methods=['GET', 'POST'])
 def result():

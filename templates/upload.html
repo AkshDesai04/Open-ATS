@@ -6,9 +6,9 @@
 </head>
 <body>
     <h1>Upload File</h1>
-    <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ url_for('process_resumes') }}" enctype="multipart/form-data">
         <input type="file" name="files[]" multiple>
-        <input type="submit" value="Upload">
+        <input type="submit" value="Process">
     </form>
 </body>
 </html>
