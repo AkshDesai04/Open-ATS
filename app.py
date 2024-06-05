@@ -54,24 +54,11 @@ def process_resumes():
 
         print("Result:", result)
 
-        # Redirect to the 'result' endpoint with the JSON data and job description as query parameters
-        return redirect(url_for('result', result=json.dumps(result), jd=jd, ExperienceValue=ExperienceValue, Experience=Experience, SkillsValue=SkillsValue, Skills=Skills, ToolsValue=ToolsValue, Tools=Tools))
-
-@app.route('/result', methods=['GET', 'POST'])
-def result():
-    if request.method == 'GET':
-        # Retrieve the JSON data and job description from query parameters
-        result = json.loads(request.args.get('result'))
-        jd = request.args.get('jd')
-        ExperienceValue = request.args.get('ExperienceValue')
-        Experience = request.args.get('Experience')
-        SkillsValue = request.args.get('SkillsValue')
-        Skills = request.args.get('Skills')
-        ToolsValue = request.args.get('ToolsValue')
-        Tools = request.args.get('Tools')
-
+        # Render the result.html template directly, passing the result data as template variables
         return render_template('result.html', result=result, jd=jd, ExperienceValue=ExperienceValue, Experience=Experience, SkillsValue=SkillsValue, Skills=Skills, ToolsValue=ToolsValue, Tools=Tools)
 
+@app.route('/result', methods=['POST'])
+def result():
     # Handle POST request for saving to CSV (if needed)
     data = json.loads(request.form['result'])
     csv_path = save_to_csv(data)

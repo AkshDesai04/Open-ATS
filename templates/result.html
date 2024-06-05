@@ -36,12 +36,6 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        /* Style for sorting buttons */
-        .sort-button {
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -87,19 +81,18 @@
         // Attach click event listener to download button
         document.getElementById('downloadButton').addEventListener('click', downloadCSV);
 
+        // Sort the result by score
+        result.sort((a, b) => b[1] - a[1]);
+
         // Render table
         var dataDiv = document.getElementById('data');
         var table = document.createElement('table');
         if (result.length > 0) {
             var headerRow = document.createElement('tr');
-            // Create table header with sorting buttons
+            // Create table header
             columns.forEach(column => {
                 var th = document.createElement('th');
-                var sortButton = document.createElement('button');
-                sortButton.textContent = column.toUpperCase();
-                sortButton.className = 'sort-button';
-                sortButton.addEventListener('click', () => sortTable(column));
-                th.appendChild(sortButton);
+                th.textContent = column.toUpperCase();
                 headerRow.appendChild(th);
             });
             table.appendChild(headerRow);
@@ -126,41 +119,6 @@
             dataDiv.appendChild(noData);
         }
         dataDiv.appendChild(table);
-
-        // Function to sort table based on column
-        function sortTable(column) {
-            var columnIdx = columns.indexOf(column);
-            result.sort((a, b) => {
-                if (column === 'score') {
-                    return b[1] - a[1];
-                } else {
-                    return a[0][column] > b[0][column] ? 1 : -1;
-                }
-            });
-            renderTable();
-        }
-
-        // Function to re-render table after sorting
-        function renderTable() {
-            var tableBody = document.createElement('tbody');
-            result.forEach((entry, index) => {
-                var row = document.createElement('tr');
-                var serialNumberCell = document.createElement('td');
-                serialNumberCell.textContent = index + 1;
-                row.appendChild(serialNumberCell);
-                columns.slice(1).forEach(column => {
-                    var td = document.createElement('td');
-                    if (column === 'score') {
-                        td.textContent = entry[1];
-                    } else {
-                        td.textContent = entry[0][column];
-                    }
-                    row.appendChild(td);
-                });
-                tableBody.appendChild(row);
-            });
-            table.replaceChild(tableBody, table.getElementsByTagName('tbody')[0]);
-        }
     </script>
 </body>
 </html>
