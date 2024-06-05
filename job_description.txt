@@ -1,0 +1,5 @@
+position: Software Development Engineer I
+expected experience: 5 years
+skills: java, python, html
+tools: git, github, firebase
+value: experiance=5, skill=3, tool=3
