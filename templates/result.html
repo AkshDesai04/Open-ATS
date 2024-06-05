@@ -13,9 +13,34 @@
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden; /* Hide overflow text */
+            text-overflow: ellipsis; /* Display ellipsis (...) for overflow text */
         }
         th {
             background-color: #f2f2f2;
+        }
+        /* Set width for score column */
+        td:nth-child(2) {
+            width: 80px;
+        }
+        /* Style for download button */
+        .download-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        /* Style for sorting buttons */
+        .sort-button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -23,41 +48,119 @@
     <h1>Result</h1>
     <div id="data"></div>
 
+    <!-- Download as CSV button -->
+    <button id="downloadButton" class="download-button">Download as CSV</button>
+
     <script>
         // Retrieve JSON data from Flask route
         var result = {{ result | tojson }};
-        var jd = {{ jd | tojson }};
 
-        // Render JSON data dynamically in a table
+        // Rearrange the columns in the desired order
+        var columns = ["sr", "name", "score", "phone", "email", "career_duration", "is_still_working", "gap_durations", "qualification", "skills", "work_experience", "marital_status", "spoken_languages", "certifications", "projects", "state"];
+
+        // Function to convert result data to CSV format
+        function convertToCSV(data) {
+            var csv = '';
+            // Add column headers
+            csv += columns.join(',') + '\n';
+            // Add rows
+            data.forEach(entry => {
+                csv += columns.map(column => entry[0][column]).join(',') + '\n';
+            });
+            return csv;
+        }
+
+        // Function to download CSV file
+        function downloadCSV() {
+            var csv = convertToCSV(result);
+            var blob = new Blob([csv], { type: 'text/csv' });
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'result.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Attach click event listener to download button
+        document.getElementById('downloadButton').addEventListener('click', downloadCSV);
+
+        // Render table
         var dataDiv = document.getElementById('data');
         var table = document.createElement('table');
-
-        // Create table header
-        var headerRow = document.createElement('tr');
-        Object.keys(result[0]).forEach(key => {
-            var th = document.createElement('th');
-            th.textContent = key;
-            headerRow.appendChild(th);
-        });
-        table.appendChild(headerRow);
-
-        // Create table rows
-        result.forEach(entry => {
-            var row = document.createElement('tr');
-            Object.values(entry).forEach(value => {
-                var td = document.createElement('td');
-                td.textContent = value;
-                row.appendChild(td);
+        if (result.length > 0) {
+            var headerRow = document.createElement('tr');
+            // Create table header with sorting buttons
+            columns.forEach(column => {
+                var th = document.createElement('th');
+                var sortButton = document.createElement('button');
+                sortButton.textContent = column.toUpperCase();
+                sortButton.className = 'sort-button';
+                sortButton.addEventListener('click', () => sortTable(column));
+                th.appendChild(sortButton);
+                headerRow.appendChild(th);
             });
-            table.appendChild(row);
-        });
-
+            table.appendChild(headerRow);
+            // Render rows
+            result.forEach((entry, index) => {
+                var row = document.createElement('tr');
+                var serialNumberCell = document.createElement('td');
+                serialNumberCell.textContent = index + 1;
+                row.appendChild(serialNumberCell);
+                columns.slice(1).forEach(column => {
+                    var td = document.createElement('td');
+                    if (column === 'score') {
+                        td.textContent = entry[1];
+                    } else {
+                        td.textContent = entry[0][column];
+                    }
+                    row.appendChild(td);
+                });
+                table.appendChild(row);
+            });
+        } else {
+            var noData = document.createElement('p');
+            noData.textContent = "No result data available.";
+            dataDiv.appendChild(noData);
+        }
         dataDiv.appendChild(table);
 
-        // Display job description
-        var jdDiv = document.createElement('div');
-        jdDiv.textContent = "Job Description: " + jd;
-        dataDiv.appendChild(jdDiv);
+        // Function to sort table based on column
+        function sortTable(column) {
+            var columnIdx = columns.indexOf(column);
+            result.sort((a, b) => {
+                if (column === 'score') {
+                    return b[1] - a[1];
+                } else {
+                    return a[0][column] > b[0][column] ? 1 : -1;
+                }
+            });
+            renderTable();
+        }
+
+        // Function to re-render table after sorting
+        function renderTable() {
+            var tableBody = document.createElement('tbody');
+            result.forEach((entry, index) => {
+                var row = document.createElement('tr');
+                var serialNumberCell = document.createElement('td');
+                serialNumberCell.textContent = index + 1;
+                row.appendChild(serialNumberCell);
+                columns.slice(1).forEach(column => {
+                    var td = document.createElement('td');
+                    if (column === 'score') {
+                        td.textContent = entry[1];
+                    } else {
+                        td.textContent = entry[0][column];
+                    }
+                    row.appendChild(td);
+                });
+                tableBody.appendChild(row);
+            });
+            table.replaceChild(tableBody, table.getElementsByTagName('tbody')[0]);
+        }
     </script>
 </body>
 </html>

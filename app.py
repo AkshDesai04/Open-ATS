@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, url_for, render_template, send_file, jsonify
 import os
+import json
 from main import main  # Assuming this imports the main function from another module
 
 app = Flask(__name__)
@@ -17,32 +18,64 @@ def upload_form():
 
 @app.route('/upload', methods=['POST'])
 def process_resumes():
-    jd = request.form['JD']
+    # Debug: Print the form data
+    print("Form Data:", request.form)
+    
+    # Safely access form data
+    jd = request.form.get('JD')
+    ExperienceValue = request.form.get('ExperienceValue')
+    Experience = request.form.get('Experience')
+    SkillsValue = request.form.get('SkillsValue')
+    Skills = request.form.get('Skills')
+    ToolsValue = request.form.get('ToolsValue')
+    Tools = request.form.get('Tools')
+
+    # Debug: Print individual form values
+    print(f"JD: {jd}, ExperienceValue: {ExperienceValue}, Experience: {Experience}")
+    print(f"SkillsValue: {SkillsValue}, Skills: {Skills}, ToolsValue: {ToolsValue}, Tools: {Tools}")
+
+    if not all([jd, ExperienceValue, Experience, SkillsValue, Skills, ToolsValue, Tools]):
+        return "Missing form data", 400  # Bad Request if any data is missing
 
     if 'files[]' not in request.files:
         return redirect(request.url)
 
-    file = request.files['files[]']
+    files = request.files.getlist('files[]')
 
-    if file:
-        filename = file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    if files:
+        filenames = []
+        for file in files:
+            filename = file.filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            filenames.append(filename)
 
         # Assuming main() returns some value
         result = main()  # Call main function without arguments
 
-        # Return JSON data instead of rendering a template directly
-        return jsonify(result=result, jd=jd)
+        print("Result:", result)
+
+        # Redirect to the 'result' endpoint with the JSON data and job description as query parameters
+        return redirect(url_for('result', result=json.dumps(result), jd=jd, ExperienceValue=ExperienceValue, Experience=Experience, SkillsValue=SkillsValue, Skills=Skills, ToolsValue=ToolsValue, Tools=Tools))
 
 @app.route('/result', methods=['GET', 'POST'])
 def result():
-    if request.method == 'POST':
-        # Handle the Save to CSV action
-        data = request.json['result']  # Retrieve JSON data sent from /upload route
-        csv_path = save_to_csv(data)
-        return send_file(csv_path, as_attachment=True)
+    if request.method == 'GET':
+        # Retrieve the JSON data and job description from query parameters
+        result = json.loads(request.args.get('result'))
+        jd = request.args.get('jd')
+        ExperienceValue = request.args.get('ExperienceValue')
+        Experience = request.args.get('Experience')
+        SkillsValue = request.args.get('SkillsValue')
+        Skills = request.args.get('Skills')
+        ToolsValue = request.args.get('ToolsValue')
+        Tools = request.args.get('Tools')
 
-    return render_template('result.html')
+        return render_template('result.html', result=result, jd=jd, ExperienceValue=ExperienceValue, Experience=Experience, SkillsValue=SkillsValue, Skills=Skills, ToolsValue=ToolsValue, Tools=Tools)
+
+    # Handle POST request for saving to CSV (if needed)
+    data = json.loads(request.form['result'])
+    csv_path = save_to_csv(data)
+    return send_file(csv_path, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True)
