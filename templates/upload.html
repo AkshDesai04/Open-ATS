@@ -7,7 +7,15 @@
 <body>
     <h1>Upload File</h1>
     <form method="POST" action="{{ url_for('process_resumes') }}" enctype="multipart/form-data">
-        <input type="file" name="files[]" multiple>
+        <h2>Job Description</h2>
+        <label>Job Title: </label> <input type = "text" name = "JD", id = "JD"> <br>
+        <input type = "number" value="5""><label>Experience (in years): </label> <input type = "number"> <br>
+        <input type = "number" value="3"><label>Skills: </label> <input type = "text"> <br>
+        <input type = "number" value="3"><label>Tools: </label> <input type = "text"> <br>
+
+        <h2>Resumes</h2>
+        <input type="file" name="files[]" multiple> <br>
+
         <input type="submit" value="Process">
     </form>
 </body>

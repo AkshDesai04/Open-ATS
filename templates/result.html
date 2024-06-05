@@ -1,11 +1,63 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Result</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
     <h1>Result</h1>
-    <p>{{ result }}</p>
+    <div id="data"></div>
+
+    <script>
+        // Retrieve JSON data from Flask route
+        var result = {{ result | tojson }};
+        var jd = {{ jd | tojson }};
+
+        // Render JSON data dynamically in a table
+        var dataDiv = document.getElementById('data');
+        var table = document.createElement('table');
+
+        // Create table header
+        var headerRow = document.createElement('tr');
+        Object.keys(result[0]).forEach(key => {
+            var th = document.createElement('th');
+            th.textContent = key;
+            headerRow.appendChild(th);
+        });
+        table.appendChild(headerRow);
+
+        // Create table rows
+        result.forEach(entry => {
+            var row = document.createElement('tr');
+            Object.values(entry).forEach(value => {
+                var td = document.createElement('td');
+                td.textContent = value;
+                row.appendChild(td);
+            });
+            table.appendChild(row);
+        });
+
+        dataDiv.appendChild(table);
+
+        // Display job description
+        var jdDiv = document.createElement('div');
+        jdDiv.textContent = "Job Description: " + jd;
+        dataDiv.appendChild(jdDiv);
+    </script>
 </body>
 </html>
