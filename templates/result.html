@@ -3,122 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Result</title>
+    <title>CSV to Table</title>
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 20px;
+        }
+        #container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+        #nameList {
+            max-width: 200px;
+            margin-right: 20px;
+            border-right: 1px solid #dddddd;
+            padding-right: 20px;
+            overflow-y: auto; /* Add vertical scroll */
+            max-height: calc(100vh - 200px); /* Set max height to the viewport height minus some space */
+        }
+        #details {
+            flex-grow: 1;
+            padding-left: 20px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
         }
         th, td {
-            padding: 8px;
+            border: 1px solid #dddddd;
             text-align: left;
-            border-bottom: 1px solid #ddd;
-            white-space: nowrap; /* Prevent text wrapping */
-            overflow: hidden; /* Hide overflow text */
-            text-overflow: ellipsis; /* Display ellipsis (...) for overflow text */
+            padding: 8px;
+            max-width: 200px; /* Set a max-width for the cells */
+            white-space: nowrap;
+            overflow: auto; /* Enable scroll for overflow content */
         }
         th {
             background-color: #f2f2f2;
         }
-        /* Set width for score column */
-        td:nth-child(2) {
-            width: 80px;
+        .scrollable {
+            overflow: auto; /* Enable scroll for overflow content */
         }
-        /* Style for download button */
-        .download-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
+        .name-item {
             cursor: pointer;
+            padding: 5px;
+            border-bottom: 1px solid #dddddd;
+        }
+        .name-item:hover {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <h1>Result</h1>
-    <div id="data"></div>
-
-    <!-- Download as CSV button -->
-    <button id="downloadButton" class="download-button">Download as CSV</button>
+    <h1>CSV to Table</h1>
+    <input type="file" id="csvFileInput" accept=".csv" />
+    <br><br>
+    <div id="container">
+        <div id="nameList">
+            <h2>Names</h2>
+            <ul id="nameListUl"></ul>
+        </div>
+        <div id="details">
+            <h2>Details</h2>
+            <table id="detailsTable"></table>
+        </div>
+    </div>
+    <br><br>
+    <table id="csvTable"></table>
 
     <script>
-        // Retrieve JSON data from Flask route
-        var result = {{ result | tojson }};
+        document.getElementById('csvFileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const rows = parseCSV(text);
+                    renderNameList(rows);
+                    renderCSVTable(rows);
+                };
+                reader.readAsText(file);
+            }
+        });
 
-        // Rearrange the columns in the desired order
-        var columns = ["sr", "name", "score", "phone", "email", "career_duration", "is_still_working", "gap_durations", "qualification", "skills", "work_experience", "marital_status", "spoken_languages", "certifications", "projects", "state"];
+        function parseCSV(text) {
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
+            let insideQuotes = false;
 
-        // Function to convert result data to CSV format
-        function convertToCSV(data) {
-            var csv = '';
-            // Add column headers
-            csv += columns.join(',') + '\n';
-            // Add rows
-            data.forEach(entry => {
-                csv += columns.map(column => entry[0][column]).join(',') + '\n';
-            });
-            return csv;
-        }
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
 
-        // Function to download CSV file
-        function downloadCSV() {
-            var csv = convertToCSV(result);
-            var blob = new Blob([csv], { type: 'text/csv' });
-            var url = window.URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'result.csv';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }
-
-        // Attach click event listener to download button
-        document.getElementById('downloadButton').addEventListener('click', downloadCSV);
-
-        // Sort the result by score
-        result.sort((a, b) => b[1] - a[1]);
-
-        // Render table
-        var dataDiv = document.getElementById('data');
-        var table = document.createElement('table');
-        if (result.length > 0) {
-            var headerRow = document.createElement('tr');
-            // Create table header
-            columns.forEach(column => {
-                var th = document.createElement('th');
-                th.textContent = column.toUpperCase();
-                headerRow.appendChild(th);
-            });
-            table.appendChild(headerRow);
-            // Render rows
-            result.forEach((entry, index) => {
-                var row = document.createElement('tr');
-                var serialNumberCell = document.createElement('td');
-                serialNumberCell.textContent = index + 1;
-                row.appendChild(serialNumberCell);
-                columns.slice(1).forEach(column => {
-                    var td = document.createElement('td');
-                    if (column === 'score') {
-                        td.textContent = entry[1];
+                if (insideQuotes) {
+                    if (char === '"') {
+                        if (text[i + 1] === '"') {
+                            currentCell += '"';
+                            i++;
+                        } else {
+                            insideQuotes = false;
+                        }
                     } else {
-                        td.textContent = entry[0][column];
+                        currentCell += char;
                     }
-                    row.appendChild(td);
-                });
-                table.appendChild(row);
-            });
-        } else {
-            var noData = document.createElement('p');
-            noData.textContent = "No result data available.";
-            dataDiv.appendChild(noData);
+                } else {
+                    if (char === '"') {
+                        insideQuotes = true;
+                    } else if (char === ',') {
+                        currentRow.push(currentCell);
+                        currentCell = '';
+                    } else if (char === '\n' || char === '\r') {
+                        if (currentCell || currentRow.length) {
+                            currentRow.push(currentCell);
+                            rows.push(currentRow);
+                            currentCell = '';
+                            currentRow = [];
+                        }
+                    } else {
+                        currentCell += char;
+                    }
+                }
+            }
+
+            if (currentCell || currentRow.length) {
+                currentRow.push(currentCell);
+                rows.push(currentRow);
+            }
+
+            return rows;
         }
-        dataDiv.appendChild(table);
+
+        function renderNameList(rows) {
+            const nameList = document.getElementById('nameListUl');
+            nameList.innerHTML = '';
+
+            rows.slice(1).forEach((row, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${index + 1}. ${row[0].trim()}`; // Assuming the first column contains the name
+                li.className = 'name-item';
+                li.dataset.index = index + 1;
+                li.addEventListener('click', () => showDetails(rows[0], row));
+                nameList.appendChild(li);
+            });
+
+            // Show details of the first person by default
+            showDetails(rows[0], rows[1]);
+        }
+
+        function showDetails(headers, row) {
+            const table = document.getElementById('detailsTable');
+            table.innerHTML = '';
+
+            headers.forEach((header, index) => {
+                const tr = document.createElement('tr');
+                const th = document.createElement('th');
+                th.textContent = header.trim();
+                const td = document.createElement('td');
+                td.textContent = row[index].trim();
+                tr.appendChild(th);
+                tr.appendChild(td);
+                table.appendChild(tr);
+            });
+        }
+
+        function renderCSVTable(rows) {
+            const table = document.getElementById('csvTable');
+            table.innerHTML = '';
+
+            rows.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                
+                row.forEach(col => {
+                    const cell = rowIndex === 0 ? document.createElement('th') : document.createElement('td');
+                    cell.className = 'scrollable';
+                    cell.textContent = col.trim();
+                    tr.appendChild(cell);
+                });
+
+                table.appendChild(tr);
+            });
+        }
     </script>
 </body>
 </html>
