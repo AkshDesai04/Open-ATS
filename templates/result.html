@@ -141,7 +141,7 @@
 
             rows.slice(1).forEach((row, index) => {
                 const li = document.createElement('li');
-                li.textContent = `${index + 1}. ${row[0].trim()}`; // Assuming the first column contains the name
+                li.textContent = `${index + 1}. ${row[1].trim()}`; // Assuming the first column contains the name
                 li.className = 'name-item';
                 li.dataset.index = index + 1;
                 li.addEventListener('click', () => showDetails(rows[0], row));

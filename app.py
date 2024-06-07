@@ -37,6 +37,23 @@ def process_resumes():
     if not all([jd, ExperienceValue, Experience, SkillsValue, Skills, ToolsValue, Tools]):
         return "Missing form data", 400  # Bad Request if any data is missing
 
+    # Ensure the directory for job description file exists
+    if not os.path.exists('job_description.txt'):
+        open('job_description.txt', 'w').close()  # Create an empty file if it doesn't exist
+
+    # Save job description details to a file
+    with open('job_description.txt', 'w') as file:
+        file.write(f"position: {jd}\n")
+        file.write(f"expected experience: {Experience} years\n")
+        file.write(f"skills: {Skills}\n")
+        file.write(f"tools: {Tools}\n")
+        file.write(f"value: experience={ExperienceValue}, skill={SkillsValue}, tool={ToolsValue}\n")
+
+    # Assuming main() returns some value
+    result = main()  # Call main function without arguments
+
+    print("Result:", result)
+
     if 'files[]' not in request.files:
         return redirect(request.url)
 
@@ -49,16 +66,15 @@ def process_resumes():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             filenames.append(filename)
 
-        # Assuming main() returns some value
-        result = main()  # Call main function without arguments
+        # Redirect to result page
+        return redirect(url_for('result'))
 
-        print("Result:", result)
-
-        # Render the result.html template directly, passing the result data as template variables
-        return render_template('result.html', result=result, jd=jd, ExperienceValue=ExperienceValue, Experience=Experience, SkillsValue=SkillsValue, Skills=Skills, ToolsValue=ToolsValue, Tools=Tools)
-
-@app.route('/result', methods=['POST'])
+@app.route('/result', methods=['GET', 'POST'])
 def result():
+    if request.method == 'GET':
+        # Render the result.html template for GET requests
+        return render_template('result.html')
+    
     # Handle POST request for saving to CSV (if needed)
     data = json.loads(request.form['result'])
     csv_path = save_to_csv(data)
