@@ -1,132 +1,200 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Result</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        body,
+        h1,
+        h2,
+        ul,
+        th,
+        td {
+            font-family: 'Muli', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 20px;
+        }
+        #container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+        #nameList {
+            max-width: 200px;
+            margin-right: 20px;
+            border-right: 1px solid #dddddd;
+            padding-right: 20px;
+            overflow-y: auto; /* Add vertical scroll */
+            max-height: calc(100vh - 200px); /* Set max height to the viewport height minus some space */
+        }
+        #details {
+            flex-grow: 1;
+            padding-left: 20px;
+        }
         table {
-            width: 80%;
+            width: 100%;
             border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 18px;
-            text-align: left;
         }
         th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            max-width: 200px; /* Set a max-width for the cells */
+            white-space: nowrap;
+            overflow: auto; /* Enable scroll for overflow content */
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .scrollable {
+            overflow: auto; /* Enable scroll for overflow content */
+        }
+        .name-item {
+            cursor: pointer;
+            padding: 5px;
+            border-bottom: 1px solid #dddddd;
+        }
+        .name-item:hover {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <h1>Result</h1>
-    <table>
-        <tr>
-            <th>Filename</th>
-            <th>Field</th>
-            <th>Value</th>
-        </tr>
-        {% for item in data %}
-            <tr>
-                <td rowspan="{{ item.resume|length + 1 }}">{{ item.filename }}</td>
-                <td>score_percentage</td>
-                <td>{{ item.score_percentage }}%</td>
-            </tr>
-            {% for key, value in item.resume.items() %}
-                <tr>
-                    <td>{{ key }}</td>
-                    <td>
-                        {% if value is iterable and value is not string %}
-                            {% if value is mapping %}
-                                <table>
-                                    <tr>
-                                        <th>Sub-Field</th>
-                                        <th>Value</th>
-                                    </tr>
-                                    {% for subkey, subvalue in value.items() %}
-                                        <tr>
-                                            <td>{{ subkey }}</td>
-                                            <td>{{ subvalue }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </table>
-                            {% else %}
-                                <ul>
-                                    {% for item in value %}
-                                        <li>{{ item }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        {% else %}
-                            {{ value }}
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-            <!-- Add rows for all the desired fields -->
-            <tr>
-                <td>name</td>
-                <td>{{ item.resume.name }}</td>
-            </tr>
-            <tr>
-                <td>phone</td>
-                <td>{{ item.resume.phone }}</td>
-            </tr>
-            <tr>
-                <td>email</td>
-                <td>{{ item.resume.email }}</td>
-            </tr>
-            <tr>
-                <td>career_duration</td>
-                <td>{{ item.resume.career_duration }}</td>
-            </tr>
-            <tr>
-                <td>is_still_working</td>
-                <td>{{ item.resume.is_still_working }}</td>
-            </tr>
-            <tr>
-                <td>gap_durations</td>
-                <td>{{ item.resume.gap_durations }}</td>
-            </tr>
-            <tr>
-                <td>qualification</td>
-                <td>{{ item.resume.qualification }}</td>
-            </tr>
-            <tr>
-                <td>skills</td>
-                <td>{{ item.resume.skills }}</td>
-            </tr>
-            <tr>
-                <td>work_experience</td>
-                <td>{{ item.resume.work_experience }}</td>
-            </tr>
-            <tr>
-                <td>marital_status</td>
-                <td>{{ item.resume.marital_status }}</td>
-            </tr>
-            <tr>
-                <td>spoken_languages</td>
-                <td>{{ item.resume.spoken_languages }}</td>
-            </tr>
-            <tr>
-                <td>certifications</td>
-                <td>{{ item.resume.certifications }}</td>
-            </tr>
-            <tr>
-                <td>projects</td>
-                <td>{{ item.resume.projects }}</td>
-            </tr>
-            <tr>
-                <td>state</td>
-                <td>{{ item.resume.state }}</td>
-            </tr>
-            <tr>
-                <td>score</td>
-                <td>{{ item.resume.score }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-    <form method="POST" action="{{ url_for('result') }}">
-        <button type="submit">Save to CSV</button>
-    </form>
+    <h1>Results</h1>
+    <input type="file" id="csvFileInput" accept=".csv" />
+    <br><br>
+    <div id="container">
+        <div id="nameList">
+            <h2>Names</h2>
+            <ul id="nameListUl"></ul>
+        </div>
+        <div id="details">
+            <h2>Details</h2>
+            <table id="detailsTable"></table>
+        </div>
+    </div>
+    <br><br>
+    <table id="csvTable"></table>
+
+    <script>
+        document.getElementById('csvFileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const rows = parseCSV(text);
+                    renderNameList(rows);
+                    renderCSVTable(rows);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function parseCSV(text) {
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+
+                if (insideQuotes) {
+                    if (char === '"') {
+                        if (text[i + 1] === '"') {
+                            currentCell += '"';
+                            i++;
+                        } else {
+                            insideQuotes = false;
+                        }
+                    } else {
+                        currentCell += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        insideQuotes = true;
+                    } else if (char === ',') {
+                        currentRow.push(currentCell);
+                        currentCell = '';
+                    } else if (char === '\n' || char === '\r') {
+                        if (currentCell || currentRow.length) {
+                            currentRow.push(currentCell);
+                            rows.push(currentRow);
+                            currentCell = '';
+                            currentRow = [];
+                        }
+                    } else {
+                        currentCell += char;
+                    }
+                }
+            }
+
+            if (currentCell || currentRow.length) {
+                currentRow.push(currentCell);
+                rows.push(currentRow);
+            }
+
+            return rows;
+        }
+
+        function renderNameList(rows) {
+            const nameList = document.getElementById('nameListUl');
+            nameList.innerHTML = '';
+
+            rows.slice(1).forEach((row, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${index + 1}. ${row[1].trim()}`; // Assuming the first column contains the name
+                li.className = 'name-item';
+                li.dataset.index = index + 1;
+                li.addEventListener('click', () => showDetails(rows[0], row));
+                nameList.appendChild(li);
+            });
+
+            // Show details of the first person by default
+            showDetails(rows[0], rows[1]);
+        }
+
+        function showDetails(headers, row) {
+            const table = document.getElementById('detailsTable');
+            table.innerHTML = '';
+
+            headers.forEach((header, index) => {
+                const tr = document.createElement('tr');
+                const th = document.createElement('th');
+                th.textContent = header.trim();
+                const td = document.createElement('td');
+                td.textContent = row[index].trim();
+                tr.appendChild(th);
+                tr.appendChild(td);
+                table.appendChild(tr);
+            });
+        }
+
+        function renderCSVTable(rows) {
+            const table = document.getElementById('csvTable');
+            table.innerHTML = '';
+
+            rows.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                
+                row.forEach(col => {
+                    const cell = rowIndex === 0 ? document.createElement('th') : document.createElement('td');
+                    cell.className = 'scrollable';
+                    cell.textContent = col.trim();
+                    tr.appendChild(cell);
+                });
+
+                table.appendChild(tr);
+            });
+        }
+    </script>
 </body>
 </html>
