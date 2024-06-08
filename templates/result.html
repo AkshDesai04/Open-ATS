@@ -179,7 +179,7 @@
                 const th = document.createElement('th');
                 th.textContent = header.trim();
                 const td = document.createElement('td');
-                td.textContent = row[index].trim();
+                td.textContent = roundIfDecimal(row[index].trim());
                 tr.appendChild(th);
                 tr.appendChild(td);
                 table.appendChild(tr);
@@ -196,12 +196,19 @@
                 row.forEach(col => {
                     const cell = rowIndex === 0 ? document.createElement('th') : document.createElement('td');
                     cell.className = 'scrollable';
-                    cell.textContent = col.trim();
+                    cell.textContent = roundIfDecimal(col.trim());
                     tr.appendChild(cell);
                 });
 
                 table.appendChild(tr);
             });
+        }
+
+        function roundIfDecimal(value) {
+            if (!isNaN(value) && value.includes('.')) {
+                return parseFloat(value).toFixed(2);
+            }
+            return value;
         }
     </script>
 </body>
