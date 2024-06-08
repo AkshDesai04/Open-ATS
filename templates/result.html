@@ -81,35 +81,36 @@
     <br><br>
     <div id="container">
         <div id="nameList">
-            <h2>Names</h2>
+            <h2>Short Listed Candidates</h2>
             <ol id="nameListUl"></ol>
         </div>
         <div id="details">
-            <h2>Details</h2>
+            <h2>Candidate Details</h2>
             <table id="detailsTable"></table>
         </div>
     </div>
     <br><br>
+    <h2>Summary Data</h2>
     <table id="csvTable"></table>
 
     <script>
         const headerMap = {
-            "serial_number": "Sr. No.",
+            "serial_number": "Rank",
             "name": "Name",
             "score": "Score",
             "phone": "Phone Number",
             "email": "Email ID",
-            "career_duration": "Career Duration",
+            "career_duration": "Work Experience",
             "is_still_working": "Is Still Working?",
-            "gap_durations": "Gap Durations",
-            "qualification": "Qualification",
+            "gap_durations": "Gaps in Career",
+            "qualification": "Highest Qualification",
             "skills": "Skills",
             "work_experience": "Work Experience",
             "marital_status": "Marital Status",
             "spoken_languages": "Spoken Languages",
             "certifications": "Certifications",
             "projects": "Projects",
-            "state": "State"
+            "state": "Locatoin"
         };
 
         document.getElementById('csvFileInput').addEventListener('change', function(event) {
