@@ -1,5 +1,5 @@
-position: Java developer
-expected experience: 2 years
-skills: Java
-tools: git
+position: Salse Manager
+expected experience: 5 years
+skills: pitching
+tools: tally
 value: experience=5, skill=3, tool=3
