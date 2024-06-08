@@ -1,5 +1,5 @@
-position: HR Manager
-expected experience: 3 years
-skills: phr, certification, ats, workday, jobvite
-tools: Payroll
+position: Java developer
+expected experience: 2 years
+skills: Java
+tools: git
 value: experience=5, skill=3, tool=3

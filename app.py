@@ -7,10 +7,13 @@ app = Flask(__name__)
 
 # Ensure the directory for uploaded files exists
 UPLOAD_FOLDER = 'resumes'
+CSV_FOLDER = '/'
+RESULT_CSV_FILE = 'resultzzz.csv'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# app.config['CSV_FOLDER'] = CSV_FOLDER
 
 @app.route('/')
 def upload_form():
@@ -79,6 +82,11 @@ def result():
     data = json.loads(request.form['result'])
     csv_path = save_to_csv(data)
     return send_file(csv_path, as_attachment=True)
+
+@app.route('/get_csv', methods=['GET'])
+def get_csv():
+    return send_file(os.path.join('', RESULT_CSV_FILE))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
