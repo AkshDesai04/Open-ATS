@@ -216,8 +216,23 @@
                 row.forEach((col, colIndex) => {
                     const cell = rowIndex === 0 ? document.createElement('th') : document.createElement('td');
                     cell.className = 'scrollable';
-                    const header = rowIndex === 0 ? headerMap[col.trim()] || col.trim() : col.trim();
-                    cell.textContent = roundIfDecimal(header);
+                    let content = col.trim();
+
+                    // Check if the content is in the form of a list
+                    if (content.startsWith('[') && content.endsWith(']')) {
+                        // Remove brackets and split by comma
+                        const items = content.slice(1, -1).split(',').map(item => item.trim());
+                        // Create a div for each item in the list
+                        items.forEach(item => {
+                            const div = document.createElement('div');
+                            div.textContent = roundIfDecimal(item);
+                            cell.appendChild(div);
+                        });
+                    } else {
+                        const header = rowIndex === 0 ? headerMap[col.trim()] || col.trim() : col.trim();
+                        cell.textContent = roundIfDecimal(header);
+                    }
+
                     tr.appendChild(cell);
                 });
 
