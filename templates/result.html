@@ -1,208 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results</title>
-    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body,
-        h1,
-        h2,
-        ul,
-        th,
-        td {
-            font-family: 'Muli', sans-serif;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin: 20px;
-            background-color: #ffffff;
-            color: #333333;
-        }
-        #container {
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-        }
-        #nameList {
-            max-width: 200px;
-            margin-right: 20px;
-            border-right: 1px solid #dddddd;
-            padding-right: 20px;
-            overflow-y: auto;
-            max-height: calc(100vh - 200px);
-        }
-        #details {
-            flex-grow: 1;
-            padding-left: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-            max-width: 200px;
-            white-space: nowrap;
-            overflow: auto;
-        }
-        th {
-            background-color: #00a651;
-            color: #ffffff;
-        }
-        .scrollable {
-            overflow: auto;
-        }
-        .name-item {
-            cursor: pointer;
-            padding: 5px;
-            border-bottom: 1px solid #dddddd;
-            background-color: #ffffff;
-            color: #333333;
-        }
-        .name-item:hover {
-            background-color: #f58220;
-            color: #ffffff;
-        }
-        h1, h2 {
-            color: #00a651;
-        }
-    </style>
-</head>
-<body>
-    <h1>Results</h1>
-    <input type="file" id="csvFileInput" accept=".csv" />
-    <br><br>
-    <div id="container">
-        <div id="nameList">
-            <h2>Names</h2>
-            <ul id="nameListUl"></ul>
-        </div>
-        <div id="details">
-            <h2>Details</h2>
-            <table id="detailsTable"></table>
-        </div>
-    </div>
-    <br><br>
-    <table id="csvTable"></table>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Results</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Muli:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			body,
+			h1,
+			h2,
+			ul,
+			th,
+			td {
+				font-family: 'Muli', sans-serif;
+			}
 
-    <script>
-        document.getElementById('csvFileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const text = e.target.result;
-                    const rows = parseCSV(text);
-                    renderNameList(rows);
-                    renderCSVTable(rows);
-                };
-                reader.readAsText(file);
-            }
-        });
+			body {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				margin: 20px;
+				background-color: #ffffff;
+				color: #333333;
+				position: relative; /* Added position relative */
+			}
+			#container {
+				display: flex;
+				flex-direction: row;
+				width: 100%;
+			}
+			#nameList {
+				max-width: 200px;
+				margin-right: 20px;
+				border-right: 1px solid #dddddd;
+				padding-right: 20px;
+				overflow-y: auto;
+				max-height: calc(100vh - 200px);
+			}
+			#details {
+				flex-grow: 1;
+				padding-left: 20px;
+			}
+			table {
+				width: 100%;
+				border-collapse: collapse;
+			}
+			th,
+			td {
+				border: 1px solid #dddddd;
+				text-align: left;
+				padding: 8px;
+				max-width: 200px;
+				white-space: nowrap;
+				overflow: auto;
+			}
+			th {
+				background-color: #00a651;
+				color: #ffffff;
+			}
+			.scrollable {
+				overflow: auto;
+			}
+			.name-item {
+				cursor: pointer;
+				padding: 5px;
+				border-bottom: 1px solid #dddddd;
+				background-color: #ffffff;
+				color: #333333;
+			}
+			.name-item:hover {
+				background-color: #f58220;
+				color: #ffffff;
+			}
+			h1,
+			h2 {
+				color: #00a651;
+			}
 
-        function parseCSV(text) {
-            const rows = [];
-            let currentRow = [];
-            let currentCell = '';
-            let insideQuotes = false;
+			/* Added CSS for the Save to CSV button */
+			#saveButton {
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				padding: 10px 20px;
+				background-color: #00a651;
+				color: #ffffff;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+			}
 
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
+			#saveButton:hover {
+				background-color: #008438;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Results</h1>
+		<div id="container">
+			<div id="nameList">
+				<h2>Short Listed Candidates</h2>
+				<ol id="nameListUl"></ol>
+			</div>
+			<div id="details">
+				<h2>Candidate Details</h2>
+				<table id="detailsTable"></table>
+			</div>
+		</div>
+		<br /><br />
+		<h2>Summary Data</h2>
+		<table id="csvTable"></table>
 
-                if (insideQuotes) {
-                    if (char === '"') {
-                        if (text[i + 1] === '"') {
-                            currentCell += '"';
-                            i++;
-                        } else {
-                            insideQuotes = false;
-                        }
-                    } else {
-                        currentCell += char;
-                    }
-                } else {
-                    if (char === '"') {
-                        insideQuotes = true;
-                    } else if (char === ',') {
-                        currentRow.push(currentCell);
-                        currentCell = '';
-                    } else if (char === '\n' || char === '\r') {
-                        if (currentCell || currentRow.length) {
-                            currentRow.push(currentCell);
-                            rows.push(currentRow);
-                            currentCell = '';
-                            currentRow = [];
-                        }
-                    } else {
-                        currentCell += char;
-                    }
-                }
-            }
+		<!-- Added Save to CSV button -->
+		<button id="saveButton">Save to CSV</button>
 
-            if (currentCell || currentRow.length) {
-                currentRow.push(currentCell);
-                rows.push(currentRow);
-            }
+		<script>
+			const headerMap = {
+				serial_number: 'Rank',
+				name: 'Name',
+				score: 'Score',
+				phone: 'Phone Number',
+				email: 'Email ID',
+				career_duration: 'Work Experience',
+				is_still_working: 'Is Still Working?',
+				gap_durations: 'Gaps in Career',
+				qualification: 'Highest Qualification',
+				skills: 'Skills',
+				work_experience: 'Work Experience',
+				marital_status: 'Marital Status',
+				spoken_languages: 'Spoken Languages',
+				certifications: 'Certifications',
+				projects: 'Projects',
+				state: 'Locatoin',
+			}
 
-            return rows;
-        }
+			fetch('./get_csv')
+				.then(res => res.text())
+				.then(text => {
+					const rows = parseCSV(text)
+					renderNameList(rows)
+					renderCSVTable(rows)
+				})
 
-        function renderNameList(rows) {
-            const nameList = document.getElementById('nameListUl');
-            nameList.innerHTML = '';
+			// document
+			// 	.getElementById('csvFileInput')
+			// 	.addEventListener('change', function (event) {
+			// 		const file = event.target.files[0]
+			// 		if (file) {
+			// 			const reader = new FileReader()
+			// 			reader.onload = function (e) {
+			// 				const text = e.target.result
+			// 				const rows = parseCSV(text)
+			// 				renderNameList(rows)
+			// 				renderCSVTable(rows)
+			// 			}
+			// 			reader.readAsText(file)
+			// 		}
+			// 	})
 
-            rows.slice(1).forEach((row, index) => {
-                const li = document.createElement('li');
-                li.textContent = `${index + 1}. ${row[1].trim()}`;
-                li.className = 'name-item';
-                li.dataset.index = index + 1;
-                li.addEventListener('click', () => showDetails(rows[0], row));
-                nameList.appendChild(li);
-            });
+			function parseCSV(text) {
+				const rows = []
+				let currentRow = []
+				let currentCell = ''
+				let insideQuotes = false
 
-            showDetails(rows[0], rows[1]);
-        }
+				for (let i = 0; i < text.length; i++) {
+					const char = text[i]
 
-        function showDetails(headers, row) {
-            const table = document.getElementById('detailsTable');
-            table.innerHTML = '';
+					if (insideQuotes) {
+						if (char === '"') {
+							if (text[i + 1] === '"') {
+								currentCell += '"'
+								i++
+							} else {
+								insideQuotes = false
+							}
+						} else {
+							currentCell += char
+						}
+					} else {
+						if (char === '"') {
+							insideQuotes = true
+						} else if (char === ',') {
+							currentRow.push(currentCell)
+							currentCell = ''
+						} else if (char === '\n' || char === '\r') {
+							if (currentCell || currentRow.length) {
+								currentRow.push(currentCell)
+								rows.push(currentRow)
+								currentCell = ''
+								currentRow = []
+							}
+						} else {
+							currentCell += char
+						}
+					}
+				}
 
-            headers.forEach((header, index) => {
-                const tr = document.createElement('tr');
-                const th = document.createElement('th');
-                th.textContent = header.trim();
-                const td = document.createElement('td');
-                td.textContent = row[index].trim();
-                tr.appendChild(th);
-                tr.appendChild(td);
-                table.appendChild(tr);
-            });
-        }
+				if (currentCell || currentRow.length) {
+					currentRow.push(currentCell)
+					rows.push(currentRow)
+				}
 
-        function renderCSVTable(rows) {
-            const table = document.getElementById('csvTable');
-            table.innerHTML = '';
+				return rows
+			}
 
-            rows.forEach((row, rowIndex) => {
-                const tr = document.createElement('tr');
-                
-                row.forEach(col => {
-                    const cell = rowIndex === 0 ? document.createElement('th') : document.createElement('td');
-                    cell.className = 'scrollable';
-                    cell.textContent = col.trim();
-                    tr.appendChild(cell);
-                });
+			function renderNameList(rows) {
+				const nameList = document.getElementById('nameListUl')
+				nameList.innerHTML = ''
 
-                table.appendChild(tr);
-            });
-        }
-    </script>
-</body>
+				rows.slice(1).forEach((row, index) => {
+					const li = document.createElement('li')
+					li.textContent = `${row[1].trim()} (${parseFloat(row[2]).toFixed(2)})` // Line 163
+					li.className = 'name-item'
+					li.dataset.index = index + 1
+					li.addEventListener('click', () => showDetails(rows[0], row))
+					nameList.appendChild(li)
+				})
+
+				showDetails(rows[0], rows[1])
+			}
+
+			function showDetails(headers, row) {
+				const table = document.getElementById('detailsTable')
+				table.innerHTML = ''
+
+				headers.forEach((header, index) => {
+					const tr = document.createElement('tr')
+					const th = document.createElement('th')
+					th.textContent = headerMap[header.trim()] || header.trim()
+					const td = document.createElement('td')
+					td.textContent = roundIfDecimal(row[index].trim())
+					tr.appendChild(th)
+					tr.appendChild(td)
+					table.appendChild(tr)
+				})
+			}
+
+			function renderCSVTable(rows) {
+				const table = document.getElementById('csvTable')
+				table.innerHTML = ''
+
+				rows.forEach((row, rowIndex) => {
+					const tr = document.createElement('tr')
+
+					row.forEach((col, colIndex) => {
+						const cell =
+							rowIndex === 0
+								? document.createElement('th')
+								: document.createElement('td')
+						cell.className = 'scrollable'
+						let content = col.trim()
+
+						// Check if the content is in the form of a list
+						if (content.startsWith('[') && content.endsWith(']')) {
+							// Remove brackets and split by comma
+							const items = content
+								.slice(1, -1)
+								.split(',')
+								.map(item => item.trim())
+							// Create a div for each item in the list
+							items.forEach(item => {
+								const div = document.createElement('div')
+								div.textContent = roundIfDecimal(item)
+								cell.appendChild(div)
+							})
+						} else {
+							const header =
+								rowIndex === 0
+									? headerMap[col.trim()] || col.trim()
+									: col.trim()
+							cell.textContent = roundIfDecimal(header)
+						}
+
+						tr.appendChild(cell)
+					})
+
+					table.appendChild(tr)
+				})
+			}
+
+			function roundIfDecimal(value) {
+				if (!isNaN(value) && value.includes('.')) {
+					return parseFloat(value).toFixed(2)
+				}
+				return value
+			}
+
+			// Function to save data to CSV
+			function saveToCSV() {
+				const table = document.getElementById('csvTable')
+				const rows = table.querySelectorAll('tr')
+				const csvData = []
+
+				rows.forEach(row => {
+					const rowData = []
+					row.querySelectorAll('th, td').forEach(cell => {
+						let value = cell.textContent.trim()
+						// Check if value contains a comma, if so, wrap it in double quotes
+						if (value.includes(',')) {
+							value = `"${value}"`
+						}
+						rowData.push(value)
+					})
+					csvData.push(rowData.join(','))
+				})
+
+				const csvContent = csvData.join('\n')
+				const blob = new Blob([csvContent], { type: 'text/csv' })
+				const url = URL.createObjectURL(blob)
+				const a = document.createElement('a')
+				a.href = url
+				a.download = 'results.csv'
+				document.body.appendChild(a)
+				a.click()
+				document.body.removeChild(a)
+				URL.revokeObjectURL(url)
+			}
+
+			// Attach click event to Save to CSV button
+			document.getElementById('saveButton').addEventListener('click', saveToCSV)
+		</script>
+	</body>
 </html>
