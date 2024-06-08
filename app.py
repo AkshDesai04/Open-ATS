@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, url_for, render_template, send_file, jsonify
 import os
+import shutil
 import json
 from main import main  # Assuming this imports the main function from another module
 
@@ -52,28 +53,29 @@ def process_resumes():
         file.write(f"tools: {Tools}\n")
         file.write(f"value: experience={ExperienceValue}, skill={SkillsValue}, tool={ToolsValue}\n")
 
-    try:
-        #removing result file for next time before running the code again
-        os.remove("resultzzz.csv")
-    except:
-        pass
-
-    # Assuming main() returns some value
-    result = main()  # Call main function without arguments
-
-    print("Result:", result)
-
     if 'files[]' not in request.files:
         return redirect(request.url)
 
     files = request.files.getlist('files[]')
 
     if files:
+        try:
+            shutil.rmtree("./resumes/")
+            os.mkdir("resumes")
+            #removing result file for next time before running the code again
+            os.remove("resultzzz.csv")
+        except Exception as e:
+            print("---------------------Error deleting folder", e)
+            
         filenames = []
         for file in files:
             filename = file.filename
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             filenames.append(filename)
+
+        print("---------------------Calling Main")
+        # Assuming main() returns some value
+        result = main()  # Call main function without arguments
 
         # Redirect to result page
         return redirect(url_for('result'))

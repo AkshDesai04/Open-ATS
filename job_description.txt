@@ -1,5 +1,5 @@
-position: Salse Rep
-expected experience: 5 years
-skills: People handling
-tools: Telly
+position: Sales Rep
+expected experience: 6 years
+skills: people
+tools: telly
 value: experience=5, skill=3, tool=3
