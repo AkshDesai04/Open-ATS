@@ -1,5 +1,5 @@
-position: Salse Manager
+position: Salse Rep
 expected experience: 5 years
-skills: pitching
-tools: tally
+skills: People handling
+tools: Telly
 value: experience=5, skill=3, tool=3

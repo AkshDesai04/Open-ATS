@@ -52,6 +52,12 @@ def process_resumes():
         file.write(f"tools: {Tools}\n")
         file.write(f"value: experience={ExperienceValue}, skill={SkillsValue}, tool={ToolsValue}\n")
 
+    try:
+        #removing result file for next time before running the code again
+        os.remove("resultzzz.csv")
+    except:
+        pass
+
     # Assuming main() returns some value
     result = main()  # Call main function without arguments
 
