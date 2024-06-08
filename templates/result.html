@@ -160,7 +160,7 @@
 
             rows.slice(1).forEach((row, index) => {
                 const li = document.createElement('li');
-                li.textContent = `${row[1].trim()}`;
+                li.textContent = `${row[1].trim()} (${parseFloat(row[2]).toFixed(2)})`; // Line 163
                 li.className = 'name-item';
                 li.dataset.index = index + 1;
                 li.addEventListener('click', () => showDetails(rows[0], row));
