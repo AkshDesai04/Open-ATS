@@ -200,11 +200,11 @@ def extract_name(resume_text):
             # Capitalize first letter of each name part
             name_parts = name_from_email.split('.')
             name_parts_capitalized = [part.capitalize() for part in name_parts]
-            return ' '.join(name_parts_capitalized)
+            return ' '.join(name_parts_capitalized).title()
         else:
-            return "Name not found"
+            return "Name Not Found"
     else:
-        return name
+        return name.title()
 
 def extract_phone(resume_text):
     phone_pattern = re.compile(r'(?:(?:\+?\d{1,3})[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', re.IGNORECASE)

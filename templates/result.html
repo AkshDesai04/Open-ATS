@@ -82,7 +82,7 @@
     <div id="container">
         <div id="nameList">
             <h2>Names</h2>
-            <ul id="nameListUl"></ul>
+            <ol id="nameListUl"></ol>
         </div>
         <div id="details">
             <h2>Details</h2>
@@ -160,7 +160,7 @@
 
             rows.slice(1).forEach((row, index) => {
                 const li = document.createElement('li');
-                li.textContent = `${index + 1}. ${row[1].trim()}`;
+                li.textContent = `${row[1].trim()}`;
                 li.className = 'name-item';
                 li.dataset.index = index + 1;
                 li.addEventListener('click', () => showDetails(rows[0], row));
