@@ -93,6 +93,25 @@
     <table id="csvTable"></table>
 
     <script>
+        const headerMap = {
+            "serial_number": "Sr. No.",
+            "name": "Name",
+            "score": "Score",
+            "phone": "Phone Number",
+            "email": "Email ID",
+            "career_duration": "Career Duration",
+            "is_still_working": "Is Still Working?",
+            "gap_durations": "Gap Durations",
+            "qualification": "Qualification",
+            "skills": "Skills",
+            "work_experience": "Work Experience",
+            "marital_status": "Marital Status",
+            "spoken_languages": "Spoken Languages",
+            "certifications": "Certifications",
+            "projects": "Projects",
+            "state": "State"
+        };
+
         document.getElementById('csvFileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -177,7 +196,7 @@
             headers.forEach((header, index) => {
                 const tr = document.createElement('tr');
                 const th = document.createElement('th');
-                th.textContent = header.trim();
+                th.textContent = headerMap[header.trim()] || header.trim();
                 const td = document.createElement('td');
                 td.textContent = roundIfDecimal(row[index].trim());
                 tr.appendChild(th);
@@ -193,10 +212,11 @@
             rows.forEach((row, rowIndex) => {
                 const tr = document.createElement('tr');
                 
-                row.forEach(col => {
+                row.forEach((col, colIndex) => {
                     const cell = rowIndex === 0 ? document.createElement('th') : document.createElement('td');
                     cell.className = 'scrollable';
-                    cell.textContent = roundIfDecimal(col.trim());
+                    const header = rowIndex === 0 ? headerMap[col.trim()] || col.trim() : col.trim();
+                    cell.textContent = roundIfDecimal(header);
                     tr.appendChild(cell);
                 });
 

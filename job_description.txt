@@ -1,5 +1,5 @@
 position: HR Manager
 expected experience: 10 years
-skills: People managment
-tools: excel
+skills: ATS,payroll
+tools: phr
 value: experience=5, skill=3, tool=3

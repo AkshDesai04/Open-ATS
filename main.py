@@ -14,6 +14,7 @@ def main():
     # For testing, use hardcoded paths
     job_description = "./job_description.txt"
     resume_folder = "./resumes/"
+
     return process_resumes(job_description, resume_folder)
 
 def process_resumes(job_description_path, resume_folder):
@@ -93,6 +94,10 @@ def process_resumes(job_description_path, resume_folder):
                             print(f"Error processing resume '{resume_path}': {e}")
                             print(e)
                             pass
+
+    print("outputs")
+    print(outputs)
+    print("outputs")
     return outputs
 
 
