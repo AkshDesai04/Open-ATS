@@ -1,30 +1,104 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload File</title>
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body,
+        h1,
+        h2,
+        label,
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        input[type="submit"] {
+            font-family: 'Muli', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin: 20px;
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        h1, h2 {
+            color: #00a651;
+        }
+
+        form {
+            max-width: 500px;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group label {
+            margin-right: 10px;
+            width: 140px; /* Adjust the width as needed */
+            flex-shrink: 0;
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="number"] {
+            padding: 8px;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            flex-grow: 1;
+        }
+
+        input[type="submit"] {
+            background-color: #00a651;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #008438;
+        }
+    </style>
 </head>
 <body>
     <h1>Upload File</h1>
     <form method="POST" action="{{ url_for('process_resumes') }}" enctype="multipart/form-data">
-        <h2>Job Description</h2>
-        <label>Job Title: </label>
-        <input type="text" name="JD" id="JD" required> <br>
-        <label>Experience Value: </label>
-        <input type="number" value="5" name="ExperienceValue" id="ExperienceValue" required><br>
-        <label>Experience (in years): </label>
-        <input type="number" name="Experience" id="Experience" required> <br>
-        <label>Skills Value: </label>
-        <input type="number" value="3" name="SkillsValue" id="SkillsValue" required><br>
-        <label>Skills: </label>
-        <input type="text" name="Skills" id="Skills" required> <br>
-        <label>Tools Value: </label>
-        <input type="number" value="3" name="ToolsValue" id="ToolsValue" required><br>
-        <label>Tools: </label>
-        <input type="text" name="Tools" id="Tools" required> <br>
+        <div class="input-group">
+            <label for="JD">Job Title:</label>
+            <input type="text" name="JD" id="JD" required>
+        </div>
+
+        <div class="input-group">
+            <label for="ExperienceValue">Experience Value:</label>
+            <input type="number" value="5" name="ExperienceValue" id="ExperienceValue" required>
+            <label for="Experience">Experience (in years):</label>
+            <input type="number" name="Experience" id="Experience" required>
+        </div>
+
+        <div class="input-group">
+            <label for="SkillsValue">Skills Value:</label>
+            <input type="number" value="3" name="SkillsValue" id="SkillsValue" required>
+            <label for="Skills">Skills:</label>
+            <input type="text" name="Skills" id="Skills" required>
+        </div>
+
+        <div class="input-group">
+            <label for="ToolsValue">Tools Value:</label>
+            <input type="number" value="3" name="ToolsValue" id="ToolsValue" required>
+            <label for="Tools">Tools:</label>
+            <input type="text" name="Tools" id="Tools" required>
+        </div>
 
         <h2>Resumes</h2>
-        <input type="file" name="files[]" multiple required> <br>
+        <input type="file" name="files[]" multiple required>
 
         <input type="submit" value="Process">
     </form>

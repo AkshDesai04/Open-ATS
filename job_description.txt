@@ -1,5 +1,5 @@
 position: HR Manager
-expected experience: 10 years
-skills: ATS,payroll
-tools: phr
+expected experience: 3 years
+skills: phr, certification, ats, workday, jobvite
+tools: Payroll
 value: experience=5, skill=3, tool=3
