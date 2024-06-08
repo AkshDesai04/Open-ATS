@@ -21,31 +21,38 @@ def calculate_max_score(job_description):
     return max_score
 
 def calculate_score(job_description, resume):
-    score = 0
+    try:
+        score = 0
+        
+        # Check experience
+        experience_needed = job_description['expected_experience']
+        candidate_experience = resume['experience_years']
+        
+        experience_value = job_description['value'][0]['experience']
+        if candidate_experience >= experience_needed:
+            score += experience_value
+        
+        # Check skills
+        required_skills = job_description['skills']
+        candidate_skills = resume['skills']
+    except Exception as e:
+        print("0_Error in first half", e)
+
+    try:
     
-    # Check experience
-    experience_needed = job_description['expected_experience']
-    candidate_experience = resume['experience_years']
-    
-    experience_value = job_description['value'][0]['experiance']
-    if candidate_experience >= experience_needed:
-        score += experience_value
-    
-    # Check skills
-    required_skills = job_description['skills']
-    candidate_skills = resume['skills']
-    
-    skill_value = job_description['value'][0]['skill']
-    for skill in required_skills:
-        if skill in candidate_skills:
-            score += skill_value
-    
-    # Check tools
-    required_tools = job_description['tools']
-    candidate_tools = resume['skills']
-    
-    tool_value = job_description['value'][0]['tool']
-    for tool in required_tools:
-        if tool in candidate_tools:
-            score += tool_value
+        skill_value = job_description['value'][0]['skill']
+        for skill in required_skills:
+            if skill in candidate_skills:
+                score += skill_value
+        
+        # Check tools
+        required_tools = job_description['tools']
+        candidate_tools = resume['skills']
+        
+        tool_value = job_description['value'][0]['tool']
+        for tool in required_tools:
+            if tool in candidate_tools:
+                score += tool_value
+    except Exception as e:
+        print("1_Error in second half", e)
     return score

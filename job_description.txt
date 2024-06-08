@@ -1,5 +1,5 @@
-position: Python
+position: HR Manager
 expected experience: 10 years
-skills: larawell
-tools: ios
+skills: People managment
+tools: excel
 value: experience=5, skill=3, tool=3

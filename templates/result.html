@@ -20,6 +20,8 @@
             flex-direction: column;
             align-items: flex-start;
             margin: 20px;
+            background-color: #ffffff;
+            color: #333333;
         }
         #container {
             display: flex;
@@ -31,8 +33,8 @@
             margin-right: 20px;
             border-right: 1px solid #dddddd;
             padding-right: 20px;
-            overflow-y: auto; /* Add vertical scroll */
-            max-height: calc(100vh - 200px); /* Set max height to the viewport height minus some space */
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
         }
         #details {
             flex-grow: 1;
@@ -46,23 +48,30 @@
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
-            max-width: 200px; /* Set a max-width for the cells */
+            max-width: 200px;
             white-space: nowrap;
-            overflow: auto; /* Enable scroll for overflow content */
+            overflow: auto;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #00a651;
+            color: #ffffff;
         }
         .scrollable {
-            overflow: auto; /* Enable scroll for overflow content */
+            overflow: auto;
         }
         .name-item {
             cursor: pointer;
             padding: 5px;
             border-bottom: 1px solid #dddddd;
+            background-color: #ffffff;
+            color: #333333;
         }
         .name-item:hover {
-            background-color: #f2f2f2;
+            background-color: #f58220;
+            color: #ffffff;
+        }
+        h1, h2 {
+            color: #00a651;
         }
     </style>
 </head>
@@ -151,14 +160,13 @@
 
             rows.slice(1).forEach((row, index) => {
                 const li = document.createElement('li');
-                li.textContent = `${index + 1}. ${row[1].trim()}`; // Assuming the first column contains the name
+                li.textContent = `${index + 1}. ${row[1].trim()}`;
                 li.className = 'name-item';
                 li.dataset.index = index + 1;
                 li.addEventListener('click', () => showDetails(rows[0], row));
                 nameList.appendChild(li);
             });
 
-            // Show details of the first person by default
             showDetails(rows[0], rows[1]);
         }
 
