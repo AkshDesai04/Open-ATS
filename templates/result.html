@@ -22,6 +22,7 @@
             margin: 20px;
             background-color: #ffffff;
             color: #333333;
+            position: relative; /* Added position relative */
         }
         #container {
             display: flex;
@@ -73,6 +74,23 @@
         h1, h2 {
             color: #00a651;
         }
+
+        /* Added CSS for the Save to CSV button */
+        #saveButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #00a651;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #saveButton:hover {
+            background-color: #008438;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +110,9 @@
     <br><br>
     <h2>Summary Data</h2>
     <table id="csvTable"></table>
+
+    <!-- Added Save to CSV button -->
+    <button id="saveButton">Save to CSV</button>
 
     <script>
         const headerMap = {
@@ -246,6 +267,41 @@
             }
             return value;
         }
+
+        // Function to save data to CSV
+        function saveToCSV() {
+    const table = document.getElementById('csvTable');
+    const rows = table.querySelectorAll('tr');
+    const csvData = [];
+
+    rows.forEach(row => {
+        const rowData = [];
+        row.querySelectorAll('th, td').forEach(cell => {
+            let value = cell.textContent.trim();
+            // Check if value contains a comma, if so, wrap it in double quotes
+            if (value.includes(',')) {
+                value = `"${value}"`;
+            }
+            rowData.push(value);
+        });
+        csvData.push(rowData.join(','));
+    });
+
+    const csvContent = csvData.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'results.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+
+        // Attach click event to Save to CSV button
+        document.getElementById('saveButton').addEventListener('click', saveToCSV);
     </script>
 </body>
 </html>
